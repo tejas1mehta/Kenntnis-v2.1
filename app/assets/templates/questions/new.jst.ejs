@@ -1,0 +1,21 @@
+<h2>Add New Question</h2>
+
+<form id="submit_question">
+  <label>
+    Question
+    <input type="text" name="question[main_question]" value="<%=question.attributes.main_question%>">
+  </label>
+
+  <label>
+    Further Description
+    <input type="text" name="question[description]" value="<%=question.attributes.description%>">
+  </label>
+
+  <div id="addTopics"> </div>
+
+  <input type="submit">
+</form>
+
+<form  id="extra_topic">
+  <input type="submit" value="More topics">
+</form>

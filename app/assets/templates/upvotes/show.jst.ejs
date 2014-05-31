@@ -1,0 +1,13 @@
+<h5> Upvotes by:
+<% friendUpvoters.forEach(function(friendUpvoter){ %>
+  <%= friendUpvoter.get("name") + ", " %>
+<% }) %>
+<% if (numExVoters > 0 ){ %>
+   <%= "and " + numExVoters + "others "%>
+ <% } %>
+<% if (!hasVoted){ %>
+	<form id="upvote" style="display:inline">
+  		 <input type="submit" value="Upvote" class="btn btn-primary btn-xs" >
+	</form>
+<% } %>
+</h5>

@@ -1,0 +1,6 @@
+<h1> Topics </h1>
+<ul>
+<% topics.forEach(function(topic){ %>
+	<li> <a href=<%= "#topics/" + topic.escape("id") %> ><%= topic.escape("title") %> </a> </li>
+<% }) %>
+</ul>

@@ -1,0 +1,5 @@
+<div style="border-bottom:thin solid #000044">
+	<h4> Topic: <a href=<%= "#topics/" + topic.id%> >  <%= topic.escape("title") %> </a></h4>
+
+	<h5> Added by: <a href=<%="#users/"+ topic._author.id %> > <%=     topic._author.get("name") %> </a> </h5>
+</div>

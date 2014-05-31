@@ -1,0 +1,30 @@
+
+<h2>Log In</h2>
+
+<form id="login">
+  <label>
+    Email
+    <input type="text" name="session[email]">
+  </label>
+
+  <label>
+    Password
+    <input type="password" name="session[password]">
+  </label>
+
+  <input type="submit" class="btn btn-primary btn-sm">
+</form>
+
+<form id="login">
+    <input type="hidden" name="session[email]" value="guest@knowledge.com">
+    <input type="hidden" name="session[password]" value="qwerty">
+
+
+    <input type="submit" class="btn btn-primary btn-sm" value="Login as Guest User ">
+</form>
+
+<br>
+<form method="get" action="#users/new">
+    <button type="submit" class="btn btn-primary btn-sm">Create Account</button>
+</form>
+

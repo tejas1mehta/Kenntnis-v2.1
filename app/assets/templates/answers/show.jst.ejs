@@ -1,0 +1,8 @@
+<div style="border-bottom:thin solid #000044">
+	<h3> Author: <a href=<%="#users/"+ answer._author.id %>> <%= answer._author.get("name") %> </a> </h3>
+  <h6> <%= "Created at: " + new Date(answer.escape("created_at")).toLocaleString()  %> </h6>
+
+  <p> Answer:  <%= answer.escape("main_answer") %>  </p>
+  <div class="upvote-btn"> </div>
+
+</div>

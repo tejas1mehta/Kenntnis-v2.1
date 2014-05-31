@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quora</title>
+  <%= stylesheet_link_tag    "application", media: "all" %>
+  <%= javascript_include_tag "application" %>
+  <%= csrf_meta_tags %>
+
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+  <script type="application/json" id="bootstrapped_current_user">
+      { "current_user": <%= !!current_user ? current_user.to_json.html_safe : "".to_json.html_safe  %> }
+  </script>
+  <div id="navbar"></div>
+
+<%= yield %>
+<script type="text/javascript">
+  var currentUserData = JSON.parse($("#bootstrapped_current_user").html());
+  console.log(currentUserData)
+  if (currentUserData.current_user){
+    Quora.currentUser = new Quora.Models.User(currentUserData.current_user);
+    console.log(Quora.currentUser)
+    // Quora.currentUser.fetch()
+    Quora.createSession()
+  }
+</script>
+</body>
+</html>

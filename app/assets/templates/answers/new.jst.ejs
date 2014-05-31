@@ -1,0 +1,12 @@
+<h2>Add Answer</h2>
+
+<form>
+  <input type="hidden"
+         name="answer[question_id]"
+         value="<%= question.escape("id") %>">
+  <label>
+    <input type="text" name="answer[main_answer]">
+  </label>
+
+  <input type="submit">
+</form>

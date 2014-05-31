@@ -1,0 +1,87 @@
+<ul>
+    <li> <label>Email: <%= user.get("email") %> </label></li>
+
+	<% if (user.attributes.about){ %>
+		<li>
+				<label>
+		    		About: <%= user.escape("about") %>
+	  		</label>
+		</li>
+	<% } %>
+
+	<% if (user.attributes.employment){ %>
+		<li>
+				<label>
+		    		Employment: <%= user.escape("employment") %>
+	  		</label>
+		</li>
+	<% } %>
+
+	<% if (user.attributes.location){ %>
+		<li>
+				<label>
+		    		Location: <%= user.escape("location") %>
+	  		</label>
+		</li>
+	<% } %>
+
+	<% if (user.attributes.education){ %>
+		<li>
+				<label>
+		    		Education: <%= user.escape("education") %>
+	  		</label>
+		</li>
+	<% } %>
+</ul>
+
+<% if (user.id == Quora.currentUser.id){ %>
+  <ul>
+  	<% if (!user.attributes.about){ %>
+  		<li>
+  			<form>
+  				<label>
+  		    		About
+  		    		<textarea name="user[about]" id="about"> </textarea>
+  		  		</label>
+  		  		 <input type="submit">
+  			</form>
+  		</li>
+  	<% } %>
+
+  	<% if (!user.attributes.employment){ %>
+  		<li>
+  			<form>
+  				<label>
+  		    		Employment:
+  		    		<textarea name="user[employment]" id="employment"> </textarea>
+  		  		</label>
+  		  		<input type="submit">
+  			</form>
+  		</li>
+  	<% } %>
+
+  	<% if (!user.attributes.location){ %>
+  		<li>
+  			<form>
+  				<label>
+  		    		Location
+  		    		<input name="user[location]" id="location">
+  		  		</label>
+  		  		 <input type="submit">
+  			</form>
+  		</li>
+  	<% } %>
+
+  	<% if (!user.attributes.education){ %>
+  		<li>
+  			<form>
+  				<label>
+  		    		Education:
+  		    		<textarea name="user[education]" id="education"> </textarea>
+  		  		</label>
+  		  		<input type="submit">
+  			</form>
+  		</li>
+  	<% } %>
+  </ul>
+<% } %>
