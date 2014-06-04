@@ -19,6 +19,9 @@ json.results @results do |result|
 
 end
 
+json.user_followers_join @user.user_followers_join
+
+json.last_obj_time @results.last.sort_time if (@results.length > 0)
 
 # json.(@user, :email, :name, :about, :location, :education, :employment, :credits)
 #

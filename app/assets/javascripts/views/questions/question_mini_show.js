@@ -1,6 +1,6 @@
 Quora.Views.QuestionMiniShow = Backbone.CompositeView.extend({
   template: JST["questions/minishow"],
-
+  tagName: "div class='show_bottom_border' id='mini-show'",
   initialize: function () {
     this.listenTo(this.model, "sync", this.render);
 

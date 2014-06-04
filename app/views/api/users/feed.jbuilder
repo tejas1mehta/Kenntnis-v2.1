@@ -17,6 +17,10 @@ json.results @results do |result|
 
 end
 
+json.last_an_time @last_an_time 
+
+json.last_qn_time @last_qn_time
+
 json.rec_users @rec_users do |rec_user|
   json.partial! 'api/shared/extract_all', object: rec_user
   json.user_followers_join rec_user.user_followers_join

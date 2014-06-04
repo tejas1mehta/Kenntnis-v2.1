@@ -8,7 +8,7 @@ Quora.Views.SessionNew = Backbone.View.extend({
   render: function () {
     var renderedContent = this.template({});
     this.$el.html(renderedContent);
-
+    $('body').addClass("back_image")
     return this;
   },
 
@@ -22,7 +22,7 @@ Quora.Views.SessionNew = Backbone.View.extend({
       success: function (resp) {
         Quora.currentUser = new Quora.Models.User(resp.attributes)
         Quora.createSession()
-
+        $('body').removeClass("back_image")
         // var navbarView = new Quora.Views.NavBar({
         //   model: Quora.currentUser
         // });

@@ -8,6 +8,53 @@ Quora.Models.User = Backbone.Model.extend({
     return this._comments;
   },
 	// parse and association arrays
+  parseObjects: function(response){
+    user = this;
+    user.objectsView = []
+    if(response.results){
+      response.results.forEach(function(result){
+        switch(result.resultclass){
+          case("Answer"):
+            var newAnswer = new Quora.Models.QuestionAnswer(result,{parse: true});
+            var answerView = new Quora.Views.AnswerFullShow({model: newAnswer});
+            user.objectsView.push(answerView)
+            break;
+          case("Question"):
+            var newQuestion = new Quora.Models.Question(result,{parse: true});
+            var questionView = new Quora.Views.QuestionMiniShow({model: newQuestion})
+            user.objectsView.push(questionView)
+            break;
+        }
+      })
+      delete response.results 
+    }
+
+  },
+
+  parseUserObjects: function(response){
+    user = this;
+    user.userObjectsView = []
+    if(response.results){
+      response.results.forEach(function(result){
+            var newUser = new Quora.Models.User(result);
+            var userView = new Quora.Views.UserMiniShow({model: newUser})
+            user.userObjectsView.push(userView)  
+            if (result.user_followers_join){
+              result.user_followers_join.forEach(function(following_join){
+                var newFollowing = new Quora.Models.Following(following_join, {parse: true}) //can remove parse?
+
+                var followingExists = Quora.followings.models.filter(function(model) {return model.id === newFollowing.id});
+                if (followingExists.length === 0){
+                  Quora.followings.add(newFollowing)
+                }
+              })
+            }              
+
+      })
+      delete response.results 
+    }
+  },
+
   parseProfile: function(response){
     user = this;
     user.profileView = []
@@ -17,29 +64,38 @@ Quora.Models.User = Backbone.Model.extend({
       response.results.forEach(function(result){
         switch(result.resultclass){
           case("Answer"):
-            console.log("IN answer")
             var newAnswer = new Quora.Models.QuestionAnswer(result,{parse: true});
             var answerView = new Quora.Views.AnswerFullShow({model: newAnswer});
             user.profileView.push(answerView)
-            console.log(user.profileView)
             break;
           case("Question"):
-            console.log("IN question")
             var newQuestion = new Quora.Models.Question(result,{parse: true});
             var questionView = new Quora.Views.QuestionMiniShow({model: newQuestion})
             user.profileView.push(questionView)
-            console.log(user.profileView)
             break;
         }
       })
       delete response.results 
     }
 
+    if (response.user_followers_join){
+      response.user_followers_join.forEach(function(following_join){
+        var newFollowing = new Quora.Models.Following(following_join) //can remove parse?
+
+        var followingExists = Quora.followings.models.filter(function(model) {return model.id === newFollowing.id});
+        if (followingExists.length === 0){
+          Quora.followings.add(newFollowing)
+        }      
+      })
+      delete response.user_followers_join
+    }
+
     user.set(response)
     debugger
-    console.log(user)
+    console.log("USER PROFILE" + user)
     return response
   },
+  
   parseFeed: function(response){
     // user = this;
     Quora.currentUser.feedView = []
@@ -50,11 +106,14 @@ Quora.Models.User = Backbone.Model.extend({
             var newAnswer = new Quora.Models.QuestionAnswer(result,{parse: true});
             var answerView = new Quora.Views.AnswerFullShow({model: newAnswer});
             Quora.currentUser.feedView.push(answerView)
+            // debugger
+            Quora.currentUser.lastFeedAnswerTime = newAnswer.sort_time
             break;
           case("Question"):
             var newQuestion = new Quora.Models.Question(result,{parse: true});
             var questionView = new Quora.Views.QuestionMiniShow({model: newQuestion})
             Quora.currentUser.feedView.push(questionView)
+            Quora.currentUser.lastFeedQuestionTime = newQuestion.sort_time
             break;
         }
       })
@@ -117,6 +176,7 @@ Quora.Models.User = Backbone.Model.extend({
     parseUserInfo: function(response){
       // debugger
       // Quora.currentUser = new Quora.Models.User(response)
+      Quora.userFollowers = new Quora.Collections.Users();
       Quora.userFollowers.add(Quora.currentUser)
       console.log("Session loggedin")
       // debugger
@@ -141,6 +201,7 @@ Quora.Models.User = Backbone.Model.extend({
           }
         })
       }
+      
     },
 })
 //

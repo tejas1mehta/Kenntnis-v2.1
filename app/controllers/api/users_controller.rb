@@ -4,6 +4,7 @@ module Api
       @user = User.new(user_params)
       if @user.save
         # UserMailer.activation_email(@user).deliver!
+        login_user!(@user)
         render json: @user
         # redirect_to root_url, notice: "Successfully created your account! Check your inbox for an activation email."
         # render partial: "api/sessions/new", locals: { board: @board }
@@ -25,7 +26,7 @@ module Api
     def show #User profile
       @user = User.find(params[:id])
       # num_scrolls = params.permit(:num_scrolls).values.first.to_i
-      @results = @user.profile_view(num_scrolls_int)
+      @results = @user.profile_view(last_obj_time_param)
       # debugger
       render :show
     end
@@ -34,9 +35,8 @@ module Api
       # debugger
       @user = User.find(params[:id])
       # num_scrolls = params.permit(:num_scrolls).values.first.to_i
-      @results = @user.feed_questions(num_scrolls_int)
-      @rec_users = @user.rec_users_to_follow()
-      # debugger
+      @results, @last_an_time, @last_qn_time = @user.feed_objects(last_an_time_param, last_qn_time_param)
+      @rec_users = @user.rec_users_to_follow(num_scroll_params)
       render :feed
     end
 
@@ -72,16 +72,51 @@ module Api
       render :search #json: @results
     end
 
+    def questions_created
+      @user = User.find(params[:id])
+      @results = @user.show_qns_created(last_obj_time_param)
+      render :show_objects
+    end
+    
+    def answers_created
+      @user = User.find(params[:id])
+      @results = @user.show_ans_created(last_obj_time_param)
+      render :show_objects
+    end
+    
+    def followers
+      @user = User.find(params[:id])
+      @results = @user.followers_fn(last_obj_time_param)
+      render :show_users
+    end
 
+    def followings
+      @user = User.find(params[:id])
+      @results = @user.followed_users_fn(last_obj_time_param)
+      render :show_users
+    end
+    
     private
     def user_params
       # password doesnt show up in user params, removing user
       params.require(:user).permit(:email, :name, :about, :location,
       	:education, :employment, :credits, :session_token, :num_credits_ans).merge( params.permit(:password))
     end
-
-    def num_scrolls_int
+    
+    def num_scroll_params
       params.permit(:num_scrolls).values.first.to_i
     end
+
+    def last_an_time_param
+      params.permit(:last_an_time).values.first
+    end
+
+    def last_qn_time_param
+      params.permit(:last_qn_time).values.first
+    end    
+
+    def last_obj_time_param
+      params.permit(:last_obj_time).values.first
+    end   
   end
 end

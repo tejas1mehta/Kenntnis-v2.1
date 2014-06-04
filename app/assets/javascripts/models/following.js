@@ -22,10 +22,12 @@ Quora.Models.Following = Backbone.Model.extend({
           break;
         case("User"):
           var newUser = new Quora.Models.User(response.followable)
-
-          var userExists = Quora.userFollowers.filter(function(model) {return model.id === newUser.id});
-          if (userExists.length === 0){
-            Quora.userFollowers.add(newUser)
+          // userFollowers here means users that are followed by the current user
+          if (response.f_id == Quora.currentUser.id){
+            var userExists = Quora.userFollowers.filter(function(model) {return model.id === newUser.id});
+            if (userExists.length === 0){
+              Quora.userFollowers.add(newUser)
+            }
           }
           break;
       }

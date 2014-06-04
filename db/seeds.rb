@@ -84,6 +84,7 @@ followed_id = 0
   end
 end
 
+Following.create([{f_id: 7, followable_type: "Question", followable_id: 7}])
 
 
 #QuestionFollowings and Votes
@@ -101,13 +102,33 @@ question_id = 0
       user_following_id = num_users
     end
     # p "voted_id: #{voted_id}, followed_id: #{followed_id}, user_id: #{user_id}"
-    Following.create([{f_id: user_following_id, followable_type: "Question", followable_id: question_id}])
     Upvote.create([{user_id: user_voting_id, upvoteable_type: "Question", upvoteable_id: question_id}])
 
     user_following_id -= 1
   end
 end
 
+user_voting_id = 0
+user_following_id = num_users
+question_id = 0
+(num_questions).times do |index|
+  question_id += 1
+  4.times do
+    if (user_voting_id % (num_users) == 0 )
+      user_voting_id = 0
+    end
+    user_voting_id += 1
+    if (user_following_id == 0)
+      user_following_id = num_users
+    end
+    # p "voted_id: #{voted_id}, followed_id: #{followed_id}, user_id: #{user_id}"
+    Following.create([{f_id: user_following_id, followable_type: "Question", followable_id: question_id}])
+
+    user_following_id -= 1
+  end
+end
+
+Upvote.create([{user_id: 7, upvoteable_type: "Question", upvoteable_id: 39}])
 
 #Answer Votes
 user_id = 0

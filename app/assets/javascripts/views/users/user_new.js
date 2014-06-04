@@ -25,9 +25,11 @@ Quora.Views.UserNew = Backbone.View.extend({
         var navbarView = new Quora.Views.NavBar({
           model: Quora.currentUser
         });
+        Quora.userFollowers = new Quora.Collections.Users();
+        Quora.userFollowers.add(Quora.currentUser)
         console.log("About to render")
         Quora.currentRouter.$navbar.html(navbarView.render().$el)
-        Backbone.history.navigate("#users/" + resp.id, { trigger: true });
+        Backbone.history.navigate("#users/settings", { trigger: true });
         //Add to users collection?
       }
     });

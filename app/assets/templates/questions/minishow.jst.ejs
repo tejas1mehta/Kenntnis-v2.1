@@ -1,10 +1,8 @@
-<div style="border-bottom:1px solid #000099" id="mini-show">
-	<h4> Question: <a href=<%= "#questions/" + question.id%> >  <%= question.escape("main_question") %> </a></h4>
-  <h6> <%= "Created at: " + new Date(question.escape("created_at")).toLocaleString()  %> </h6>
+<h4> Question: <a href=<%= "#questions/" + question.id%> >  <%= question.escape("main_question") %> </a></h4>
+<h6> <%= "Created at: " + new Date(question.escape("created_at")).toLocaleString()  %> </h6>
 
-	<h5> Added by: <a href=<%="#users/"+ question._author.id %> > <%=     question._author.get("name") %> </a> </h5>
+<h5> Added by: <a href=<%="#users/"+ question._author.id %> > <%=     question._author.get("name") %> </a> </h5>
 
 <div class="upvote-btn"> </div>
 
 <div class="following-btn"> </div>
-</div>

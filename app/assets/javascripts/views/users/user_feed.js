@@ -1,9 +1,9 @@
 Quora.Views.UserFeed = Backbone.CompositeView.extend({
   template: JST["users/feed"],
-  tagName: "div id='user_feed' style='overflow:scroll;'",
+  tagName: "div id='user_feed'",
   initialize: function () {
     var view = this;
-    this.listenTo(this.model, "sync", this.render);
+    // this.listenTo(this.model, "sync", this.render);
     this.numScrolls = 0
     // this.$el.on("submit", $("#follow"), this.followedUser.bind(this))
     // $(window).scroll(function() {
@@ -31,6 +31,7 @@ Quora.Views.UserFeed = Backbone.CompositeView.extend({
   },
 
   followedUser: function(event){
+    debugger
     var follower_id = parseInt($(event.target).find("#followable_id").val());
     console.log("In user show event" + follower_id)
     var userFollowedView = this.model.recUserViews.filter(function(recUserView){
@@ -39,14 +40,9 @@ Quora.Views.UserFeed = Backbone.CompositeView.extend({
 
     this.removeSubview("#rec_users", userFollowedView[0])
   },
-  //
-  // events: {
-  //
-  //   "scroll" : "addMoreResults"
-  // },
 
   addMoreResults: function(){
-    console.log("FIRED");
+    console.log("LastQnTime" + this.lastFeedQnTime + "LastAnTime" + this.lastFeedAnTime);
     console.log($("#user_feed"))
     this.numScrolls += 1;
     view = this
@@ -54,7 +50,9 @@ Quora.Views.UserFeed = Backbone.CompositeView.extend({
       type: "GET",
       url: "/api/users/" + Quora.currentUser.id + "/feed",
       data: {
-         num_scrolls: this.numScrolls
+         last_an_time: view.lastFeedAnTime,
+         last_qn_time: view.lastFeedQnTime,
+         num_scrolls: view.numScrolls         
       },
       success: function(response){
         // var user = new Quora.Models.User({id: id});
@@ -62,10 +60,17 @@ Quora.Views.UserFeed = Backbone.CompositeView.extend({
         // var userFeedView = new Quora.Views.UserFeed({
         //   model: Quora.currentUser
         // });
+        view.lastFeedAnTime = response.last_an_time
+        view.lastFeedQnTime = response.last_qn_time
         console.log("DATA RECEIVED")
         debugger
         view.model.feedView.forEach(function(feedViewObj){
           view.addSubview(("#feed-activity"), feedViewObj)
+        })
+
+        $("#rec_users").html("")
+        view.model.recUserViews.forEach(function(recUserView){
+          view.addSubview("#rec_users", recUserView)
         })
       }
     })
@@ -79,15 +84,8 @@ Quora.Views.UserFeed = Backbone.CompositeView.extend({
     });
 
     this.$el.html(renderedContent);
-
+    console.log("LASTQNTIME" + this.lastFeedQnTime)
     if (this.model.feedView){
-      // this.$el.scroll(function() {
-      //   // if(view.$el.scrollTop() + view.$el.innerHeight() >= view.$el.scrollHeight) {
-      //    if(view.$el.scrollTop()  + $(window).height() == $(document).height()){
-      //       alert('end reached');
-      //   }
-      // })
-
       this.model.feedView.forEach(function(feedViewObj){
         view.addSubview(("#feed-activity"), feedViewObj)
       })

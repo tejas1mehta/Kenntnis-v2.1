@@ -6,6 +6,10 @@ Quora::Application.routes.draw do
     resources :users, only: [:create, :show, :update] do
       get :activate, on: :collection
       get :feed, on: :member
+      get :questions_created, on: :member
+      get :answers_created, on: :member
+      get :followings, on: :member
+      get :followers, on: :member
       get :userinfo, on: :member
       get :search, on: :collection
 

@@ -8,10 +8,11 @@ Quora.Routers.Users = Backbone.Router.extend({
     "": "NewSession",
     "users/new": "UserNew",
     "users/logout": "Logout",
+    "users/settings": "Settings",
+    "users/search": "Search",
     "users/:id": "UserProfile",
     "users/:id/feed": "UserFeed",
     "users/:id/addinfo": "UserAddInfo",
-    "users/:id/settings": "Settings",
     "questions/new" : "QuestionNew",
     "questions/:id" : "QuestionShow",
     "question/:ques_id/answer/:ans_id" : "AnswerShow",
@@ -20,8 +21,33 @@ Quora.Routers.Users = Backbone.Router.extend({
     "topics/:id" : "TopicShow",
   },
 
+  Search: function(){
+  },
+
+  UserQuestionsCreated: function(id){
+
+    $.ajax({
+      type: "GET",
+      url: "/api/users" + id + "/questions_created",
+      success: function(response){
+        console.log("logouted")
+        Quora.currentUser = null
+        Backbone.history.navigate("", { trigger: true });
+      }
+    })
+  },
+
+  Settings: function(){
+    $(window).unbind("scroll")
+
+    var newSettingsView = new Quora.Views.UserSettings({
+      model: Quora.currentUser
+    });
+    this._swapView(newSettingsView);    
+  },
+
   Logout: function(id){
-    console.log(Quora.userSession.url)
+    // console.log(Quora.userSession.url)
     // Quora.userSession.destroy()
     $(window).unbind("scroll")
 
@@ -47,6 +73,8 @@ Quora.Routers.Users = Backbone.Router.extend({
       type: "GET",
       url: "/api/users/" + id + "/feed",
       data: {
+         last_an_time: 0,
+         last_qn_time: 0,
          num_scrolls: 0
       },
       success: function(response){
@@ -55,8 +83,9 @@ Quora.Routers.Users = Backbone.Router.extend({
         var userFeedView = new Quora.Views.UserFeed({
           model: Quora.currentUser
         });
-        // debugger
-
+        userFeedView.lastFeedAnTime = response.last_an_time
+        userFeedView.lastFeedQnTime = response.last_qn_time
+        console.log("feed success:" + userFeedView.lastFeedAnTime)
         that._swapView(userFeedView)
       }
     })
@@ -89,7 +118,7 @@ Quora.Routers.Users = Backbone.Router.extend({
       type: "GET",
       url: "/api/users/" + id,
       data: {
-         num_scrolls: 0
+         last_obj_time: 0
       },
       success: function(response){
         // var user = new Quora.Models.User({id: id});
@@ -101,6 +130,7 @@ Quora.Routers.Users = Backbone.Router.extend({
           model: user
         });
         // debugger
+        userProfileView.lastObjTime = response.last_obj_time
 
         that._swapView(userProfileView)
       }

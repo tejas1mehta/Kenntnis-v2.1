@@ -31,8 +31,8 @@ window.Quora = {
 
     Backbone.history.start();
     console.log("NEW")
+    Quora.usersFetched = new Quora.Collections.Users();
     Quora.relevantQnUsers = new Quora.Collections.Users();
-    Quora.userFollowers = new Quora.Collections.Users();
     Quora.answers = new Quora.Collections.Answers();
     Quora.questions = new Quora.Collections.Questions();
     Quora.topics = new Quora.Collections.Answers();

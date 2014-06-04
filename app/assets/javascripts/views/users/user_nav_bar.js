@@ -23,7 +23,6 @@ Quora.Views.NavBar = Backbone.View.extend({
 
     var params = $(event.currentTarget).serializeJSON();
     console.log(Quora)
-
     // var user = new Quora.Models.User(params["user"]);
     $.ajax({
       type: "GET",
@@ -36,10 +35,11 @@ Quora.Views.NavBar = Backbone.View.extend({
         var userSearchResults = new Quora.Views.UserSearchResults({
           model: Quora.currentUser
         });
-        debugger
+        
         Quora.currentRouter._swapView(userSearchResults)
       }
     })
 
+    Quora.currentRouter.navigate("#users/search")
   },
 });
