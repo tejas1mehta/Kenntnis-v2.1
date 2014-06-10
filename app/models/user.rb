@@ -157,8 +157,8 @@ class User < ActiveRecord::Base
     feed_scores = Hash.new(){0}
     num_results = 10
 
-    last_an_time ="3000" if last_an_time == "0"
-    last_qn_time = "3000" if last_qn_time == "0"
+    last_an_time =Time.now if last_an_time == "0"
+    last_qn_time = Time.now if last_qn_time == "0"
     followed_user_ids = Following.where(f_id: self.id, followable_type: "User").pluck(:followable_id)
     followed_topic_ids = Following.where(f_id: self.id, followable_type: "Topic").pluck(:followable_id)
     feed_questions = Question.find_by_sql ["SELECT qn_list.id AS id,
