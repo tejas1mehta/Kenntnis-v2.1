@@ -29,6 +29,8 @@ Quora.Views.UserShow = Backbone.CompositeView.extend({
     } else {
       this.last_obj_time = 0
     }
+    console.log("LastObjTime in UserShow View:" + view.last_obj_time)
+    
   },
 
   render: function () {
@@ -50,6 +52,8 @@ Quora.Views.UserShow = Backbone.CompositeView.extend({
 
   moreResults: function(){
     view = this
+    console.log("LastObjTime in UserShow moreResults View:" + view.last_obj_time)
+    
     view.$el.find("#loading_el").removeClass("inv_el")
     view.model.fetch({data: {
              last_obj_time: view.last_obj_time,

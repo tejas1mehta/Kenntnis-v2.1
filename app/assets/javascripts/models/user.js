@@ -9,9 +9,12 @@ Quora.Models.User = Backbone.Model.extend({
     }
 
     if(response.last_an_time){
-      user.lastFeedAnTime = response.last_an_time;  
+      user.lastFeedAnTime = response.last_an_time; 
+      console.log("ResponseLastFeedAnTime in User Parse:" + response.last_an_time)
+       
+      console.log("LastFeedAnTime in User Parse:" + user.lastFeedAnTime)
     }
-
+    
     if(response.last_qn_time){
       user.lastFeedQnTime = response.last_qn_time;
     }
@@ -44,6 +47,8 @@ Quora.Models.User = Backbone.Model.extend({
             var question = Quora.questions.get(result.id)
             var questionView = new Quora.Views.QuestionMiniShow({model: question})
             user.objectsView.push(questionView)
+            console.log("SortObjTime in UserParse:" + question.sort_time)
+            
             break;
           case("User"):
             Quora.allUsers.add(result,{merge: true, parse: true})

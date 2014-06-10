@@ -38,7 +38,8 @@ Quora.Views.UserFeed = Backbone.CompositeView.extend({
   },
 
   addMoreResults: function(){
-    console.log("LastQnTime" + this.lastFeedQnTime + "LastAnTime" + this.lastFeedAnTime);
+    console.log("LastQnTime in UserFeed moreResults View:" + this.lastFeedQnTime + "LastAnTime" + this.lastFeedAnTime);
+    
     this.numScrolls += 1;
     view = this
     view.$el.find("#loading_el").removeClass("inv_el")
