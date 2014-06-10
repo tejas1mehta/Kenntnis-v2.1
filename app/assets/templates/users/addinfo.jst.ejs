@@ -1,3 +1,5 @@
+<h1><a href=<%="#users/" + user.id %> ><%= user.escape("name") %></a></h1>
+
 <ul>
     <li> <label>Email: <%= user.get("email") %> </label></li>
 
@@ -34,11 +36,14 @@
 	<% } %>
 </ul>
 
+
 <% if (user.id == Quora.currentUser.id){ %>
   <ul>
   	<% if (!user.attributes.about){ %>
   		<li>
-  			<form>
+  			<form class="form-horizontal">
+          <fieldset>
+
   				<label>
   		    		About
   		    		<textarea name="user[about]" id="about"> </textarea>

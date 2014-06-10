@@ -1,9 +1,17 @@
-<h5> Followers:
+<h5 style="line-height:1.7"> Followers:
 <% friendFollowers.forEach(function(friendFollower){ %>
-  <%= friendFollower.get("name") + ", " %>
+  <a href=<%= "#users/" + friendFollower.id%> > <%= friendFollower.get("name")%></a>,
 <% }) %>
+
 <% if (numExFollowers > 0 ){ %>
-   <%= "and " + numExFollowers + " others "%>
+	<% if (friendFollowers.length > 0){ %>
+	 and 
+	<% } %>
+   <%= numExFollowers %>
+   	<% if (friendFollowers.length > 0){ %>
+   	 other 
+   	<% } %>
+   	users
  <% } %>
 
 <% if (!objFollowingtemplate){ %>

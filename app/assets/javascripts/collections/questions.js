@@ -3,3 +3,4 @@ Quora.Collections.Questions = Backbone.Collection.extend({
   model: Quora.Models.Question
 
 });
+_.extend(Quora.Collections.Questions.prototype, Quora.CollectionMixIn);

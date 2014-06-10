@@ -66,7 +66,7 @@ num_topics.times do |index|
     user_id = 0
   end
   user_id += 1
-  faker_topic = Faker::Commerce.department
+  faker_topic = Faker::Lorem.word
   topic = Topic.create({title: faker_topic, author_id: user_id})
 end
 

@@ -33,3 +33,4 @@ Quora.Collections.Followings = Backbone.Collection.extend({
     return friendModels
   },
 });
+_.extend(Quora.Collections.Followings.prototype, Quora.CollectionMixIn);

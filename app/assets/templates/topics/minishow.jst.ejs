@@ -1,5 +1,2 @@
-<div style="border-bottom:thin solid #000044">
-	<h4> Topic: <a href=<%= "#topics/" + topic.id%> >  <%= topic.escape("title") %> </a></h4>
+<a href=<%= "#topics/" + topic.id%> > <h4 class="label label-primary">    <%= topic.escape("title") %> </h4> </a>  &nbsp &nbsp
 
-	<h5> Added by: <a href=<%="#users/"+ topic._author.id %> > <%=     topic._author.get("name") %> </a> </h5>
-</div>

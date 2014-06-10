@@ -161,63 +161,82 @@ class User < ActiveRecord::Base
     last_qn_time = "3000" if last_qn_time == "0"
     followed_user_ids = Following.where(f_id: self.id, followable_type: "User").pluck(:followable_id)
     followed_topic_ids = Following.where(f_id: self.id, followable_type: "Topic").pluck(:followable_id)
-    feed_questions = Question.find_by_sql ["SELECT qn_list.*
+    feed_questions = Question.find_by_sql ["SELECT qn_list.id AS id,
+              MAX(qn_list.main_question) AS main_question,
+              MAX(qn_list.description) AS description,
+              MAX(qn_list.author_id) AS author_id,
+              MAX(qn_list.upvotes) AS upvotes,
+              MAX(qn_list.created_at) AS created_at,
+              MAX(sort_time_c) AS sort_time
               FROM (
-              SELECT questions.*, upvotes.created_at AS sort_time
+              SELECT questions.*, upvotes.created_at AS sort_time_c
               FROM questions
               INNER JOIN upvotes
               ON (upvotes.upvoteable_id = questions.id AND upvotes.upvoteable_type = 'Question')
               WHERE (upvotes.user_id IN (:followed_ids)) 
               UNION
-              SELECT questions.*, followings.created_at AS sort_time
+              SELECT questions.*, followings.created_at AS sort_time_c
               FROM questions
               INNER JOIN followings
               ON (followings.followable_id = questions.id AND followings.followable_type = 'Question')
               WHERE (followings.f_id IN (:followed_ids))
               UNION
-              SELECT questions.*, questions.created_at AS sort_time
+              SELECT questions.*, questions.created_at AS sort_time_c
                       FROM questions 
                       WHERE (questions.author_id IN (:followed_ids))
               UNION
-              SELECT questions.*, topic_question_joins.created_at AS sort_time
+              SELECT questions.*, topic_question_joins.created_at AS sort_time_c
               FROM questions
               INNER JOIN topic_question_joins
               ON (questions.id = topic_question_joins.question_id)
               WHERE (topic_question_joins.topic_id IN (:topic_ids)) )  AS qn_list
               GROUP BY qn_list.id
-              HAVING max(sort_time) < :last_feed_qn_time
-              ORDER BY max(sort_time) DESC
+              HAVING max(sort_time_c) < :last_feed_qn_time
+              ORDER BY max(sort_time_c) DESC
               LIMIT 5",  {followed_ids: followed_user_ids, topic_ids: followed_topic_ids, last_feed_qn_time: last_qn_time} ]
+    ActiveRecord::Associations::Preloader.new(feed_questions, :topics).run
+    # ActiveRecord::Associations::Preloader.new.preload(feed_questions, :topics)
+
+              # .includes(:topics) to feed_questions may save N+1 queries!
               #Change syntax for PostGRESQL LIMIT 20 OFFSET 10, SQLite: LIMIT 10, 20
-     feed_answers = Answer.find_by_sql ["SELECT an_list.*
-             FROM (
-             SELECT answers.*, upvotes.created_at AS sort_time
-             FROM answers
-             INNER JOIN upvotes
-             ON (upvotes.upvoteable_id = answers.id AND upvotes.upvoteable_type = 'Answer')
-             WHERE (upvotes.user_id IN (:followed_ids)) 
-             UNION
-             SELECT answers.*, answers.created_at AS sort_time
-                      FROM answers 
-                      WHERE (answers.author_id IN (:followed_ids)))  AS an_list
-             GROUP BY an_list.id
-             HAVING max(sort_time) < :last_feed_an_time
-             ORDER BY max(sort_time) DESC
-             LIMIT 10",  {followed_ids: followed_user_ids, last_feed_an_time: last_an_time} ]
+    
+    feed_answers = Answer.find_by_sql ["SELECT an_list.id AS id,
+            MAX(an_list.main_answer) AS main_answer,
+            MAX(an_list.question_id) AS question_id,
+            MAX(an_list.author_id) AS author_id,
+            MAX(an_list.upvotes) AS upvotes,
+            MAX(an_list.created_at) AS created_at,
+            MAX(sort_time_c) AS sort_time
+            FROM (
+            SELECT answers.*, upvotes.created_at AS sort_time_c
+            FROM answers
+            INNER JOIN upvotes
+            ON (upvotes.upvoteable_id = answers.id AND upvotes.upvoteable_type = 'Answer')
+            WHERE (upvotes.user_id IN (:followed_ids)) 
+            UNION
+            SELECT answers.*, answers.created_at AS sort_time_c
+                    FROM answers 
+                    WHERE (answers.author_id IN (:followed_ids)))  AS an_list
+            GROUP BY an_list.id
+            HAVING max(sort_time_c) < :last_feed_an_time
+            ORDER BY max(sort_time_c) DESC
+            LIMIT 10",  {followed_ids: followed_user_ids, last_feed_an_time: last_an_time} ]
+    ActiveRecord::Associations::Preloader.new(feed_answers, question: :topics).run
+    # ActiveRecord::Associations::Preloader.new.preload(feed_answers, question: :topics)
      #  ,
     # time_getting_feed = Time.now
     last_an_time = feed_answers.last.sort_time if (feed_answers.length > 0)
     last_qn_time = feed_questions.last.sort_time if (feed_questions.length > 0)
     feed_questions.each do |question|
       question.topics.each do |topic|
-        feed_scores[question] += topics_weightage[topic.id]
+        feed_scores[question] += topics_weightage[topic.id] || 1
       end
       feed_scores[question] += question.upvotes
     end
     
     feed_answers.each do |answer|
       answer.question.topics.each do |topic|
-        feed_scores[answer] += topics_weightage[topic.id]
+        feed_scores[answer] += topics_weightage[topic.id] || 1
       end
       feed_scores[answer] += answer.upvotes
     end
@@ -225,8 +244,7 @@ class User < ActiveRecord::Base
     sorted_feed_results = feed_scores.sort_by{|key, value| value}.map(&:first).reverse
     feed_end_time = Time.now
     feed_time = (feed_end_time - feed_st_time) * 1000
-    # debugger
-    
+        
     sorted_feed_results = Question.all.sample(num_results) if sorted_feed_results.length == 0
 
     return sorted_feed_results, last_an_time, last_qn_time
@@ -234,31 +252,33 @@ class User < ActiveRecord::Base
 
   def weightage_topic
     time_getting_weights = Time.now
+    num_topics = Topic.last.id + 1
     cached_topics_weightage = Rails.cache.fetch("topics_weightage_#{self.id}", expires_in: 2.hours) do
-      topics_weightage = []
+      topics_weightage = Array.new(num_topics){1}
       self.questions_followed.each do |question_followed|
         question_followed.topics.each do |topic|
-          topics_weightage[topic.id] ||= 0
+          # topics_weightage[topic.id] ||= 0
           topics_weightage[topic.id] += 5
         end
       end
 
       self.answers_upvoted.each do |answer_upvoted|
         answer_upvoted.question.topics.each do |topic|
-          topics_weightage[topic.id] ||= 0
+          # topics_weightage[topic.id] ||= 0
+
           topics_weightage[topic.id] += 5
         end
       end
 
       self.questions_upvoted.each do |question_upvoted|
         question_upvoted.topics.each do |topic|
-          topics_weightage[topic.id] ||= 0
+          # topics_weightage[topic.id] ||= 0
           topics_weightage[topic.id] += 5
         end
       end
 
       self.topics_followed.each do |topic|
-          topics_weightage[topic.id] ||= 0
+          # topics_weightage[topic.id] ||= 0
           topics_weightage[topic.id] += 5
       end
 
@@ -282,39 +302,51 @@ class User < ActiveRecord::Base
     Rails.cache.delete("profile_view_#{self.id}") if last_obj_sort_time == "0"
     time1 = Time.now
     cached_objects = Rails.cache.fetch("profile_view_#{self.id}", expires_in: 2.hours) do
-      profile_questions = Question.find_by_sql ["SELECT qn_list.*
+      profile_questions = Question.find_by_sql ["SELECT qn_list.id AS id,
+                  MAX(qn_list.main_question) AS main_question,
+                  MAX(qn_list.description) AS description,
+                  MAX(qn_list.author_id) AS author_id,
+                  MAX(qn_list.upvotes) AS upvotes,
+                  MAX(qn_list.created_at) AS created_at,
+                  MAX(sort_time_c) AS sort_time
                 FROM (
-                SELECT questions.*, upvotes.created_at AS sort_time
+                SELECT questions.*, upvotes.created_at AS sort_time_c
                   FROM questions
                   INNER JOIN upvotes
                   ON (upvotes.upvoteable_id = questions.id AND upvotes.upvoteable_type = 'Question')
                   WHERE (upvotes.user_id IN (:profile_user_id)) 
                 UNION
-                SELECT questions.*, followings.created_at AS sort_time
+                SELECT questions.*, followings.created_at AS sort_time_c
                   FROM questions
                   INNER JOIN followings
                   ON (followings.followable_id = questions.id AND followings.followable_type = 'Question')
                   WHERE (followings.f_id IN (:profile_user_id))
                 UNION
-                SELECT questions.*, questions.created_at AS sort_time
+                SELECT questions.*, questions.created_at AS sort_time_c
                   FROM questions 
                   WHERE (questions.author_id IN (:profile_user_id)) )  AS qn_list
                 GROUP BY qn_list.id
-                ORDER BY max(sort_time) DESC", {profile_user_id: [self.id]} ]
+                ORDER BY max(sort_time_c) DESC", {profile_user_id: [self.id]} ]
 
-      profile_answers = Answer.find_by_sql ["SELECT an_list.*
+      profile_answers = Answer.find_by_sql ["SELECT an_list.id AS id,
+                    MAX(an_list.main_answer) AS main_answer,
+                    MAX(an_list.question_id) AS question_id,
+                    MAX(an_list.author_id) AS author_id,
+                    MAX(an_list.upvotes) AS upvotes,
+                    MAX(an_list.created_at) AS created_at,
+                    MAX(sort_time_c) AS sort_time
                    FROM (
-                   SELECT answers.*, upvotes.created_at AS sort_time
+                   SELECT answers.*, upvotes.created_at AS sort_time_c
                      FROM answers
                      INNER JOIN upvotes
                      ON (upvotes.upvoteable_id = answers.id AND upvotes.upvoteable_type = 'Answer')
                      WHERE (upvotes.user_id IN (:profile_user_id)) 
                    UNION
-                   SELECT answers.*, answers.created_at AS sort_time
+                   SELECT answers.*, answers.created_at AS sort_time_c
                       FROM answers 
                       WHERE (answers.author_id IN (:profile_user_id)))  AS an_list
                    GROUP BY an_list.id
-                   ORDER BY max(sort_time) DESC",  {profile_user_id:  [self.id]} ]
+                   ORDER BY max(sort_time_c) DESC",  {profile_user_id:  [self.id]} ]
 
       all_objects = (profile_questions + profile_answers).sort{|obj1, obj2| (obj2.sort_time <=> obj1.sort_time)}  
       all_objects

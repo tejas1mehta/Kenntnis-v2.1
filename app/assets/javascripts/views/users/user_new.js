@@ -7,7 +7,7 @@ Quora.Views.UserNew = Backbone.View.extend({
   render: function () {
     var renderedContent = this.template({});
     this.$el.html(renderedContent);
-
+    $('body').addClass("back_image")
     return this;
   },
 
@@ -25,6 +25,7 @@ Quora.Views.UserNew = Backbone.View.extend({
         var navbarView = new Quora.Views.NavBar({
           model: Quora.currentUser
         });
+        $('body').removeClass("back_image")
         Quora.userFollowers = new Quora.Collections.Users();
         Quora.userFollowers.add(Quora.currentUser)
         console.log("About to render")

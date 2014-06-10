@@ -5,10 +5,10 @@
 
 			   <ul class="nav nav-pills nav-stacked">
 
-			    <li><a href="" id="questions_created">Questions Created</a></li>
-			    <li><a href="" id="answers_created" > Answers Created </a></li>
-			    <li><a href="" id="followers" > Followers</a></li>
- 			    <li><a href="" id="followings" > Following</a></li>
+			    <li><a href="" id="questions_created" class="profile_btn">Questions Created</a></li>
+			    <li><a href="" id="answers_created" class="profile_btn"> Answers Created </a></li>
+			    <li><a href="" id="followers" class="profile_btn"> Followers</a></li>
+ 			    <li><a href="" id="followings" class="profile_btn"> Following</a></li>
 			  </ul>
 
 			</nav>
@@ -16,12 +16,12 @@
 
 		<div class="col-xs-10">
 
-			<h1><a href=<%="#users/" + user.id %> ><%= user.escape("name") %></a></h1>
+     		<div id="user_info"></div>
 			<div class="user_following_btn"></div>
-      		<div id="user_info"></div>
 			<br>
 
 			<div id="recent-activity"> </div>
+        	<h4 class="inv_el" id="loading_el" style="text-align:center"> Loading </h4>
 		</div>
 	</div>
 </div>

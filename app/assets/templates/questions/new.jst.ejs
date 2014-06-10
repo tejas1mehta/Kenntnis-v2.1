@@ -1,21 +1,33 @@
-<h2>Add New Question</h2>
+<form id="submit_question" class="form-horizontal">
+  <fieldset>
+  <legend> Add a New Question </legend>
 
-<form id="submit_question">
-  <label>
-    Question
-    <input type="text" name="question[main_question]" value="<%=question.attributes.main_question%>">
-  </label>
+    <div class="form-group">
+      <label for="qn_text" class="col-lg-2 control-label">Question</label>
+      <div class="col-lg-10">
+        <input type="text" id="qn_text" class="form-control" name="question[main_question]" value="<%=question.attributes.main_question%>">
+      </div>
+    </div>
 
-  <label>
-    Further Description
-    <input type="text" name="question[description]" value="<%=question.attributes.description%>">
-  </label>
 
-  <div id="addTopics"> </div>
-
-  <input type="submit">
-</form>
-
-<form  id="extra_topic">
-  <input type="submit" value="More topics">
+    <div class="form-group">
+      <label for="qn_descr" class="col-lg-2 control-label">Description</label>
+      <div class="col-lg-10">
+          <textarea class="form-control" rows="3" id="qn_descr"  name="question[description]" value="<%=question.attributes.description%>"></textarea>
+      </div>
+    </div>
+    <div id="addTopics" class="form-group">
+    </div>
+    <div class="form-group">
+      <div class="col-lg-10 col-lg-offset-2">
+        <button id="extra_topic" class="btn btn-primary btn-sm">More topics</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-lg-10 col-lg-offset-2">
+        <button class="btn btn-default">Cancel</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </fieldset>
 </form>

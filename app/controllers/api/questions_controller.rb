@@ -15,7 +15,6 @@ module Api
 
     def show
       @question = Question.find(params[:id])
-      # debugger
       if @question
         render :show
       else

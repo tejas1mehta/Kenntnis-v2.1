@@ -7,10 +7,10 @@ Quora.Models.Following = Backbone.Model.extend({
         case("Topic"):
           var newTopic = new Quora.Models.Topic(response.followable)
 
-          var topicExists = Quora.topics.filter(function(model) {return model.id === newTopic.id});
-          if (topicExists.length === 0){
-            Quora.topics.add(newTopic)
-          }
+          // var topicExists = Quora.topics.filter(function(model) {return model.id === newTopic.id});
+          // if (topicExists.length === 0){
+          //   Quora.topics.add(newTopic)
+          // }
           break;
         case("Question"):
           var newQuestion = new Quora.Models.Question(response.followable)

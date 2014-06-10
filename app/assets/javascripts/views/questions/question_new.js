@@ -2,7 +2,7 @@ Quora.Views.QuestionNew = Backbone.CompositeView.extend({
   template: JST["questions/new"],
   events: {
     "submit form#submit_question": "submit",
-    "submit form#extra_topic" : "addTopic"
+    "click button#extra_topic" : "addTopic"
   },
 
   initialize: function(){

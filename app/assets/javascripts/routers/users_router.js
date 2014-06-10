@@ -66,29 +66,20 @@ Quora.Routers.Users = Backbone.Router.extend({
   UserFeed: function(id){
     $(window).unbind("scroll")
 
-    var that = this;
     console.log("IN FEED")
     // Quora.numVisitsPages.feed = 1
-    $.ajax({
-      type: "GET",
-      url: "/api/users/" + id + "/feed",
-      data: {
+    Quora.currentUser.fetch({data: {
          last_an_time: 0,
          last_qn_time: 0,
-         num_scrolls: 0
-      },
-      success: function(response){
-        // var user = new Quora.Models.User({id: id});
-        Quora.currentUser.parseFeed(response)
-        var userFeedView = new Quora.Views.UserFeed({
-          model: Quora.currentUser
-        });
-        userFeedView.lastFeedAnTime = response.last_an_time
-        userFeedView.lastFeedQnTime = response.last_qn_time
-        console.log("feed success:" + userFeedView.lastFeedAnTime)
-        that._swapView(userFeedView)
-      }
-    })
+         num_scrolls: 0,
+         data_to_fetch: "feed_results"
+    }})
+
+    var userFeedView = new Quora.Views.UserFeed({
+      model: Quora.currentUser
+    });
+
+    this._swapView(userFeedView)
   },
 
   NewSession: function () {
@@ -114,39 +105,16 @@ Quora.Routers.Users = Backbone.Router.extend({
     var that = this;
     var user = new Quora.Models.User({id: id});
 
-    $.ajax({
-      type: "GET",
-      url: "/api/users/" + id,
-      data: {
-         last_obj_time: 0
-      },
-      success: function(response){
-        // var user = new Quora.Models.User({id: id});
-        // debugger
-        // user.set(response.attributes)
+    user.fetch({data: {
+             last_obj_time: 0,
+             data_to_fetch: "profile_results"
+    }})
 
-        user.parseProfile(response)
-        var userProfileView = new Quora.Views.UserShow({
+    userProfileView = new Quora.Views.UserShow({
           model: user
-        });
-        // debugger
-        userProfileView.lastObjTime = response.last_obj_time
-
-        that._swapView(userProfileView)
-      }
-    })
-    // user.fetch({ data: { num_scrolls: 0}, success: function(response){
-    //  console.log("USER SUCCESS")
-    //  console.log(response)
-    //  debugger
-    //  user.parseProfile(response)
-    // } })
-
-    // var profileView = new Quora.Views.UserShow({
-    //   model: user
-    // });
-
-    // this._swapView(profileView);
+    });
+    userProfileView.lastDataFetched = "profile_results";
+    this._swapView(userProfileView);
   },
 
   UserAddInfo: function (id) {

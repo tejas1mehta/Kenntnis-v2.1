@@ -25,19 +25,28 @@ module Api
 
     def show #User profile
       @user = User.find(params[:id])
-      # num_scrolls = params.permit(:num_scrolls).values.first.to_i
-      @results = @user.profile_view(last_obj_time_param)
       # debugger
-      render :show
-    end
-
-    def feed
-      # debugger
-      @user = User.find(params[:id])
-      # num_scrolls = params.permit(:num_scrolls).values.first.to_i
-      @results, @last_an_time, @last_qn_time = @user.feed_objects(last_an_time_param, last_qn_time_param)
-      @rec_users = @user.rec_users_to_follow(num_scroll_params)
-      render :feed
+      case data_to_fetch_param
+      when "questions_created"
+        @results = @user.show_qns_created(last_obj_time_param)
+        render :show_objects
+      when "answers_created"
+        @results = @user.show_ans_created(last_obj_time_param)  
+        render :show_objects
+      when "followers"
+        @results = @user.followers_fn(last_obj_time_param)
+        render :show_users
+      when "followings"
+        @results = @user.followed_users_fn(last_obj_time_param)
+        render :show_users
+      when "profile_results"
+        @results = @user.profile_view(last_obj_time_param)
+        render :show
+      when "feed_results"
+        @results, @last_an_time, @last_qn_time = @user.feed_objects(last_an_time_param, last_qn_time_param)
+        @rec_users = @user.rec_users_to_follow(num_scroll_params)
+        render :feed
+      end
     end
 
     def update
@@ -71,30 +80,6 @@ module Api
       @results = User.search(search_keywords)
       render :search #json: @results
     end
-
-    def questions_created
-      @user = User.find(params[:id])
-      @results = @user.show_qns_created(last_obj_time_param)
-      render :show_objects
-    end
-    
-    def answers_created
-      @user = User.find(params[:id])
-      @results = @user.show_ans_created(last_obj_time_param)
-      render :show_objects
-    end
-    
-    def followers
-      @user = User.find(params[:id])
-      @results = @user.followers_fn(last_obj_time_param)
-      render :show_users
-    end
-
-    def followings
-      @user = User.find(params[:id])
-      @results = @user.followed_users_fn(last_obj_time_param)
-      render :show_users
-    end
     
     private
     def user_params
@@ -118,5 +103,9 @@ module Api
     def last_obj_time_param
       params.permit(:last_obj_time).values.first
     end   
+
+    def data_to_fetch_param
+      params.permit(:data_to_fetch).values.first
+    end
   end
 end

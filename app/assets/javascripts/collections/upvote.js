@@ -27,3 +27,4 @@ Quora.Collections.Upvotes = Backbone.Collection.extend({
   },
 
 });
+_.extend(Quora.Collections.Upvotes.prototype, Quora.CollectionMixIn);

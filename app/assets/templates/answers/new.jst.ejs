@@ -1,12 +1,21 @@
-<h2>Add Answer</h2>
+<br>
+<form  class="form-horizontal">
+  <legend> Add an Answer</legend>
 
-<form>
-  <input type="hidden"
-         name="answer[question_id]"
-         value="<%= question.escape("id") %>">
-  <label>
-    <input type="text" name="answer[main_answer]">
-  </label>
+	  <input type="hidden"
+	         name="answer[question_id]"
+	         value="<%= question.escape("id") %>">
 
-  <input type="submit">
+		<div class="form-group">
+	      <div class="col-lg-8">
+	        <textarea class="form-control" rows="3" id="textArea" name="answer[main_answer]"></textarea>
+	      </div>
+	  </div>
+
+    <div class="form-group">
+      <div class="col-lg-10">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </fieldset>
 </form>

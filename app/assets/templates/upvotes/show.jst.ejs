@@ -1,9 +1,16 @@
 <h5> Upvotes by:
 <% friendUpvoters.forEach(function(friendUpvoter){ %>
-  <%= friendUpvoter.get("name") + ", " %>
+  <a href=<%= "#users/" + friendUpvoter.id%> >  <%= friendUpvoter.get("name")%> </a>, 
 <% }) %>
 <% if (numExVoters > 0 ){ %>
-   <%= "and " + numExVoters + " others "%>
+	<% if (friendUpvoters.length > 0){ %>
+	 and
+	<%  } %>
+   <%= numExVoters%>
+    <% if (friendUpvoters.length > 0){ %>
+     other
+    <%  } %>
+	users
  <% } %>
 <% if (!hasVoted){ %>
 	<form id="upvote" style="display:inline">
@@ -11,3 +18,5 @@
 	</form>
 <% } %>
 </h5>
+
+

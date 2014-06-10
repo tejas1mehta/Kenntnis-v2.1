@@ -1,13 +1,7 @@
-<ul>
+<ul style="padding-right:23px" class="show_bottom_border">
   <h4><a href=<%= "#users/" + user.id %> ><%= user.escape("name") %> </a> </h4>
   <div class="following-btn"></div>
-	<% if (user.attributes.employment){ %>
 
-				<h6>
-		    		Employment: <%= user.escape("employment") %>
-	  		</h6>
-
-	<% } %>
 
 	<% if (user.attributes.location){ %>
 
@@ -17,11 +11,5 @@
 
 	<% } %>
 
-	<% if (user.attributes.education){ %>
 
-				<h6>
-		    		Education: <%= user.escape("education") %>
-	  		</h6>
-
-	<% } %>
 </ul>

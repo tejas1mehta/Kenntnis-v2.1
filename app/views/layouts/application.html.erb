@@ -16,7 +16,7 @@
       { "current_user": <%= !!current_user ? current_user.to_json.html_safe : "".to_json.html_safe  %> }
   </script>
   <div id="navbar"></div>
-
+  
 <%= yield %>
 <script type="text/javascript">
   var currentUserData = JSON.parse($("#bootstrapped_current_user").html());

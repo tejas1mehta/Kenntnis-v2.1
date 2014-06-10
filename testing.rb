@@ -1,38 +1,125 @@
-profile_questions = Question.find_by_sql ["SELECT qn_list.*
+feed_answers = Answer.find_by_sql ["SELECT an_list.id AS id,
+        MAX(an_list.main_answer) AS main_answer,
+        MAX(an_list.question_id) AS question_id,
+        MAX(an_list.author_id) AS author_id,
+        MAX(an_list.upvotes) AS upvotes,
+        MAX(an_list.created_at) AS created_at,
+        MAX(sort_time_c) AS sort_time
+        FROM (
+        SELECT answers.*, upvotes.created_at AS sort_time_c
+        FROM answers
+        INNER JOIN upvotes
+        ON (upvotes.upvoteable_id = answers.id AND upvotes.upvoteable_type = 'Answer')
+        WHERE (upvotes.user_id IN (:followed_ids)) 
+        UNION
+        SELECT answers.*, answers.created_at AS sort_time_c
+                FROM answers 
+                WHERE (answers.author_id IN (:followed_ids)))  AS an_list
+        GROUP BY an_list.id
+        HAVING max(sort_time) < :last_feed_an_time
+        ORDER BY max(sort_time) DESC
+        LIMIT 10",  {followed_ids: followed_user_ids, last_feed_an_time: last_an_time} ]
+
+feed_questions = Question.find_by_sql ["SELECT qn_list.*
           FROM (
           SELECT questions.*, upvotes.created_at AS sort_time
-            FROM questions
-            INNER JOIN upvotes
-            ON (upvotes.upvoteable_id = questions.id AND upvotes.upvoteable_type = 'Question')
-            WHERE (upvotes.user_id IN (:profile_user_id)) 
+          FROM questions
+          INNER JOIN upvotes
+          ON (upvotes.upvoteable_id = questions.id AND upvotes.upvoteable_type = 'Question')
+          WHERE (upvotes.user_id IN (:followed_ids)) 
           UNION
           SELECT questions.*, followings.created_at AS sort_time
-            FROM questions
-            INNER JOIN followings
-            ON (followings.followable_id = questions.id AND followings.followable_type = 'Question')
-            WHERE (followings.f_id IN (:profile_user_id))
+          FROM questions
+          INNER JOIN followings
+          ON (followings.followable_id = questions.id AND followings.followable_type = 'Question')
+          WHERE (followings.f_id IN (:followed_ids))
           UNION
           SELECT questions.*, questions.created_at AS sort_time
-            FROM questions 
-            WHERE (questions.author_id IN (:profile_user_id)) )  AS qn_list
+                  FROM questions 
+                  WHERE (questions.author_id IN (:followed_ids))
+          UNION
+          SELECT questions.*, topic_question_joins.created_at AS sort_time
+          FROM questions
+          INNER JOIN topic_question_joins
+          ON (questions.id = topic_question_joins.question_id)
+          WHERE (topic_question_joins.topic_id IN (:topic_ids)) )  AS qn_list
           GROUP BY qn_list.id
-          ORDER BY max(sort_time) DESC", {profile_user_id: [10]} ]
+          HAVING max(sort_time) < :last_feed_qn_time
+          ORDER BY max(sort_time) DESC
+          LIMIT 5",   {followed_ids: [10], topic_ids: [], last_feed_qn_time: "3000"}  ]
 
-profile_answers = Answer.find_by_sql ["SELECT an_list.*
-             FROM (
-             SELECT answers.*, upvotes.created_at AS sort_time
-               FROM answers
-               INNER JOIN upvotes
-               ON (upvotes.upvoteable_id = answers.id AND upvotes.upvoteable_type = 'Answer')
-               WHERE (upvotes.user_id IN (:profile_user_id)) 
-             UNION
-             SELECT answers.*, answers.created_at AS sort_time
-                FROM answers 
-                WHERE (answers.author_id IN (:profile_user_id)))  AS an_list
-             GROUP BY an_list.id
-             ORDER BY max(sort_time) DESC",  {profile_user_id:  [10]} ]
+p feed_questions
 
-all_objects = (profile_questions + profile_answers).sort{|obj1, obj2| (obj2.sort_time <=> obj1.sort_time)}             
+feed_questions = Question.find_by_sql ["SELECT qn_list.id AS id,
+          MAX(qn_list.main_question) AS main_question,
+          MAX(qn_list.description) AS description,
+          MAX(qn_list.author_id) AS author_id,
+          MAX(qn_list.upvotes) AS upvotes,
+          MAX(qn_list.created_at) AS created_at,
+          MAX(sort_time_c) AS sort_time
+          FROM (
+          SELECT questions.*, upvotes.created_at AS sort_time_c
+          FROM questions
+          INNER JOIN upvotes
+          ON (upvotes.upvoteable_id = questions.id AND upvotes.upvoteable_type = 'Question')
+          WHERE (upvotes.user_id IN (:followed_ids)) 
+          UNION
+          SELECT questions.*, followings.created_at AS sort_time_c
+          FROM questions
+          INNER JOIN followings
+          ON (followings.followable_id = questions.id AND followings.followable_type = 'Question')
+          WHERE (followings.f_id IN (:followed_ids))
+          UNION
+          SELECT questions.*, questions.created_at AS sort_time_c
+                  FROM questions 
+                  WHERE (questions.author_id IN (:followed_ids))
+          UNION
+          SELECT questions.*, topic_question_joins.created_at AS sort_time_c
+          FROM questions
+          INNER JOIN topic_question_joins
+          ON (questions.id = topic_question_joins.question_id)
+          WHERE (topic_question_joins.topic_id IN (:topic_ids)) )  AS qn_list
+          GROUP BY qn_list.id
+          HAVING max(sort_time_c) < :last_feed_qn_time
+          ORDER BY max(sort_time_c) DESC
+          LIMIT 5",  {followed_ids: followed_user_ids, topic_ids: followed_topic_ids, last_feed_qn_time: last_qn_time} ]
+p feed_questions
+
+# profile_questions = Question.find_by_sql ["SELECT qn_list.*
+#           FROM (
+#           SELECT questions.*, upvotes.created_at AS sort_time
+#             FROM questions
+#             INNER JOIN upvotes
+#             ON (upvotes.upvoteable_id = questions.id AND upvotes.upvoteable_type = 'Question')
+#             WHERE (upvotes.user_id IN (:profile_user_id)) 
+#           UNION
+#           SELECT questions.*, followings.created_at AS sort_time
+#             FROM questions
+#             INNER JOIN followings
+#             ON (followings.followable_id = questions.id AND followings.followable_type = 'Question')
+#             WHERE (followings.f_id IN (:profile_user_id))
+#           UNION
+#           SELECT questions.*, questions.created_at AS sort_time
+#             FROM questions 
+#             WHERE (questions.author_id IN (:profile_user_id)) )  AS qn_list
+#           GROUP BY qn_list.id
+#           ORDER BY max(sort_time) DESC", {profile_user_id: [10]} ]
+
+# profile_answers = Answer.find_by_sql ["SELECT an_list.*
+#              FROM (
+#              SELECT answers.*, upvotes.created_at AS sort_time
+#                FROM answers
+#                INNER JOIN upvotes
+#                ON (upvotes.upvoteable_id = answers.id AND upvotes.upvoteable_type = 'Answer')
+#                WHERE (upvotes.user_id IN (:profile_user_id)) 
+#              UNION
+#              SELECT answers.*, answers.created_at AS sort_time
+#                 FROM answers 
+#                 WHERE (answers.author_id IN (:profile_user_id)))  AS an_list
+#              GROUP BY an_list.id
+#              ORDER BY max(sort_time) DESC",  {profile_user_id:  [10]} ]
+
+# all_objects = (profile_questions + profile_answers).sort{|obj1, obj2| (obj2.sort_time <=> obj1.sort_time)}             
 
      #  ,
 

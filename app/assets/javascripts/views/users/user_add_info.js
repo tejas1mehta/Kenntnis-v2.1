@@ -2,10 +2,6 @@ Quora.Views.UserAddInfo = Backbone.View.extend({
   template: JST["users/addinfo"],
   events: {
         "submit form": "submit"
-    // "submit about-btn": "submit",
-    // "submit employment-btn": "submit",
-    // "submit education-btn": "submit",
-    // "submit location-btn": "submit",
   },
   initialize: function(){
      this.listenTo(this.model, "sync", this.render);

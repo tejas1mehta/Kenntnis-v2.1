@@ -3,25 +3,32 @@ Quora.Views.UserFeed = Backbone.CompositeView.extend({
   tagName: "div id='user_feed'",
   initialize: function () {
     var view = this;
-    // this.listenTo(this.model, "sync", this.render);
     this.numScrolls = 0
-    // this.$el.on("submit", $("#follow"), this.followedUser.bind(this))
-    // $(window).scroll(function() {
-    //    if($(window).scrollTop() + $(window).height() == $(document).height()) {
-    //        view.addMoreResults()
-    //    }
-    // });
-    // debugger
+    view.lastFeedAnTime = 0
+    view.lastFeedQnTime = 0
     console.log(this.$el)
     $(window).bind("scroll", $("#user_feed"), this.checkEndPage.bind(this))
-    // this.$el.bind("scroll", this.checkEndPage.bind(this))
+    this.listenToOnce(this.model,"objectsReceived", this.addObjects)
+    // this.$("#rec_users").on("submit", $("#follow"), this.followedUser.bind(this))
+  },
 
-    // this.$el.scroll(function() {
-    //   console.log("SCROLLING")
-    //    if($(window).scrollTop() + $(window).height() == $(document).height()) {
-    //        view.addMoreResults()
-    //    }
-    // });
+  events: {
+    "submit #rec_users #follow": "followedUser" 
+  },
+
+  addObjects: function(){
+    var view = this;
+    var objsView = view.model.objectsView
+    view.$el.find("#loading_el").addClass("inv_el")
+    objsView.forEach(function(objView){
+      view.addSubview("#feed-activity", objView)
+    })
+    view.$("#rec_users").html("")
+    view.model.recUserViews.forEach(function(recUserView){
+        view.addSubview("#rec_users", recUserView)
+    })
+    view.lastFeedAnTime = view.model.lastFeedAnTime;
+    view.lastFeedQnTime = view.model.lastFeedQnTime;
   },
 
   checkEndPage: function(){
@@ -30,8 +37,21 @@ Quora.Views.UserFeed = Backbone.CompositeView.extend({
     }
   },
 
+  addMoreResults: function(){
+    console.log("LastQnTime" + this.lastFeedQnTime + "LastAnTime" + this.lastFeedAnTime);
+    this.numScrolls += 1;
+    view = this
+    view.$el.find("#loading_el").removeClass("inv_el")
+    Quora.currentUser.fetch({data: {
+         last_an_time: view.lastFeedAnTime,
+         last_qn_time: view.lastFeedQnTime,
+         num_scrolls: view.numScrolls,
+         data_to_fetch: "feed_results"
+    }})
+    this.listenToOnce(this.model,"objectsReceived", this.addObjects)
+  },
+
   followedUser: function(event){
-    debugger
     var follower_id = parseInt($(event.target).find("#followable_id").val());
     console.log("In user show event" + follower_id)
     var userFollowedView = this.model.recUserViews.filter(function(recUserView){
@@ -41,64 +61,15 @@ Quora.Views.UserFeed = Backbone.CompositeView.extend({
     this.removeSubview("#rec_users", userFollowedView[0])
   },
 
-  addMoreResults: function(){
-    console.log("LastQnTime" + this.lastFeedQnTime + "LastAnTime" + this.lastFeedAnTime);
-    console.log($("#user_feed"))
-    this.numScrolls += 1;
-    view = this
-    $.ajax({
-      type: "GET",
-      url: "/api/users/" + Quora.currentUser.id + "/feed",
-      data: {
-         last_an_time: view.lastFeedAnTime,
-         last_qn_time: view.lastFeedQnTime,
-         num_scrolls: view.numScrolls         
-      },
-      success: function(response){
-        // var user = new Quora.Models.User({id: id});
-        Quora.currentUser.parseFeed(response)
-        // var userFeedView = new Quora.Views.UserFeed({
-        //   model: Quora.currentUser
-        // });
-        view.lastFeedAnTime = response.last_an_time
-        view.lastFeedQnTime = response.last_qn_time
-        console.log("DATA RECEIVED")
-        debugger
-        view.model.feedView.forEach(function(feedViewObj){
-          view.addSubview(("#feed-activity"), feedViewObj)
-        })
-
-        $("#rec_users").html("")
-        view.model.recUserViews.forEach(function(recUserView){
-          view.addSubview("#rec_users", recUserView)
-        })
-      }
-    })
-  },
-
   render: function () {
     var view = this;
-    console.log(this.$el)
     var renderedContent = this.template({
       user : this.model
     });
 
     this.$el.html(renderedContent);
-    console.log("LASTQNTIME" + this.lastFeedQnTime)
-    if (this.model.feedView){
-      this.model.feedView.forEach(function(feedViewObj){
-        view.addSubview(("#feed-activity"), feedViewObj)
-      })
-    }
 
-    if (this.model.recUserViews){
-      this.$("#rec_users").on("submit", $("#follow"), this.followedUser.bind(this))
-      this.model.recUserViews.forEach(function(recUserView){
-        view.addSubview("#rec_users", recUserView)
-      })
-    }
-    //this.attachSubviews();
-    // this.attachSubviews();
+    this.attachSubviews();
     return this;
   },
 

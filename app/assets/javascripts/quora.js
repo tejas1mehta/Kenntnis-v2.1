@@ -31,13 +31,15 @@ window.Quora = {
 
     Backbone.history.start();
     console.log("NEW")
+    Quora.allUsers = new Quora.Collections.Users();
     Quora.usersFetched = new Quora.Collections.Users();
     Quora.relevantQnUsers = new Quora.Collections.Users();
     Quora.answers = new Quora.Collections.Answers();
     Quora.questions = new Quora.Collections.Questions();
-    Quora.topics = new Quora.Collections.Answers();
+    Quora.topics = new Quora.Collections.Topics();
     Quora.followings = new Quora.Collections.Followings();
     Quora.upvotes = new Quora.Collections.Upvotes();
+    Quora.topicQuestionJoins = new Quora.Collections.TopicQuestionJoins();
     Quora.relUserJoins = new Quora.Collections.QnRelevantUsers(); //Join table
   }
 };
@@ -95,6 +97,18 @@ Backbone.CompositeView = Backbone.View.extend({
 
     var subviews = this.subviews(selector);
     subviews.splice(subviews.indexOf(subview), 1);
+  },
+
+  removeAllSubviews: function(selector){
+    var view = this;
+    var selectorSubviews = this.subviews(selector);
+    var i = 0;
+    var lengthSubviews = selectorSubviews.length
+    while (i < lengthSubviews){
+      i += 1;
+      subview = selectorSubviews["0"];
+      view.removeSubview(selector, subview)
+    }
   },
 
   subviews: function (selector) {
