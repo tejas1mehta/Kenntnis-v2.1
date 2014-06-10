@@ -356,7 +356,7 @@ class User < ActiveRecord::Base
     if last_obj_sort_time == "0"
       return cached_objects[0, num_results]
     else
-      last_obj_index = cached_objects.find_index{|obj| obj.sort_time == last_obj_sort_time}
+      last_obj_index = cached_objects.find_index{|obj| obj.sort_time.strftime("%d/%m/%Y %H:%M:%S:%L") == last_obj_sort_time}
       return cached_objects[last_obj_index + 1 , num_results]
     end
     # last_obj_created = cached_objects.select{|cached_obj| cached_obj.}
