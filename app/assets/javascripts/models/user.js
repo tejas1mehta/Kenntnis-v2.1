@@ -19,6 +19,9 @@ Quora.Models.User = Backbone.Model.extend({
       user.lastFeedQnTime = response.last_qn_time;
     }
 
+    if(response.last_obj_time){
+      user.lastObjTime = response.last_obj_time;
+    }
     if (response.rec_users){
       user.recUserViews = [];
       response.rec_users.forEach(function(rec_user){

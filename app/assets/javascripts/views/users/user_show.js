@@ -25,7 +25,7 @@ Quora.Views.UserShow = Backbone.CompositeView.extend({
       view.addSubview("#recent-activity", objView)
     })
     if(objsView.length > 0){
-      this.last_obj_time = objsView[objsView.length - 1].model.get("sort_time")
+      this.last_obj_time = view.model.lastObjTime
     } else {
       this.last_obj_time = 0
     }
