@@ -4,4 +4,4 @@ json.results @results do |result|
 	json.resultclass result.class.to_s
 end
 
-json.last_obj_time @results.last.sort_time.to_s if (@results.length > 0)
+json.last_obj_time @results.last.sorted_time_str if (@results.length > 0)

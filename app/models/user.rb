@@ -26,6 +26,10 @@ class ActiveRecord::Base
 
     token
   end
+  
+  def sorted_time_str
+    return self.sort_time.strftime("%d/%m/%Y %H:%M:%S:%L")
+  end
 end
 
 class User < ActiveRecord::Base
@@ -356,7 +360,7 @@ class User < ActiveRecord::Base
     if last_obj_sort_time == "0"
       return cached_objects[0, num_results]
     else
-      last_obj_index = cached_objects.find_index{|obj| obj.sort_time.strftime("%d/%m/%Y %H:%M:%S:%L") == last_obj_sort_time}
+      last_obj_index = cached_objects.find_index{|obj| obj.sorted_time_str == last_obj_sort_time}
       return cached_objects[last_obj_index + 1 , num_results]
     end
     # last_obj_created = cached_objects.select{|cached_obj| cached_obj.}
@@ -462,7 +466,7 @@ class User < ActiveRecord::Base
     if last_qn_created_at == "0"
       return cached_questions[0, num_results]
     else
-      last_qn_index = cached_questions.find_index{|qn| qn.created_at == last_qn_created_at}
+      last_qn_index = cached_questions.find_index{|qn| qn.sorted_time_str == last_qn_created_at}
       return cached_questions[last_qn_index + 1 , num_results]
     end
 
@@ -484,7 +488,7 @@ class User < ActiveRecord::Base
     if last_an_created_at == "0"
       return cached_answers[0, num_results]
     else
-      last_an_index = cached_answers.find_index{|an| an.created_at == last_an_created_at}
+      last_an_index = cached_answers.find_index{|an| an.sorted_time_str == last_an_created_at}
       return cached_answers[last_an_index + 1 , num_results]
     end
 
@@ -508,7 +512,7 @@ class User < ActiveRecord::Base
     if last_follower_created_at == "0"
       return cached_followers[0, num_results]
     else
-      last_follower_index = cached_followers.find_index{|follower| follower.created_at == last_follower_created_at}
+      last_follower_index = cached_followers.find_index{|follower| follower.sorted_time_str == last_follower_created_at}
 
       return cached_followers[last_follower_index + 1 , num_results]
     end
@@ -532,7 +536,7 @@ class User < ActiveRecord::Base
     if last_fu_created_at == "0"
       return cached_followed_users[0, num_results]
     else
-      last_fu_index = cached_followed_users.find_index{|fu| fu.created_at == last_fu_created_at}
+      last_fu_index = cached_followed_users.find_index{|fu| fu.sorted_time_str == last_fu_created_at}
       return cached_followed_users[last_fu_index + 1 , num_results]
     end
 

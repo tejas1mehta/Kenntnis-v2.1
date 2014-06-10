@@ -21,7 +21,7 @@ end
 
 json.user_followers_join @user.user_followers_join
 
-json.last_obj_time @results.last.sort_time.strftime("%d/%m/%Y %H:%M:%S:%L") if (@results.length > 0)
+json.last_obj_time @results.last.sorted_time_str if (@results.length > 0)
 
 # json.(@user, :email, :name, :about, :location, :education, :employment, :credits)
 #
