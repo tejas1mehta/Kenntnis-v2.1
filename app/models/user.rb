@@ -200,6 +200,7 @@ class User < ActiveRecord::Base
               LIMIT 5",  {followed_ids: followed_user_ids, topic_ids: followed_topic_ids, last_feed_qn_time: last_qn_time} ]
     ActiveRecord::Associations::Preloader.new(feed_questions, :topics).run
     # ActiveRecord::Associations::Preloader.new.preload(feed_questions, :topics)
+    ActiveRecord::Associations::Preloader.new(feed_questions, [:author, :upvotes_join, :followers_join]).run
 
               # .includes(:topics) to feed_questions may save N+1 queries!
               #Change syntax for PostGRESQL LIMIT 20 OFFSET 10, SQLite: LIMIT 10, 20
@@ -225,9 +226,12 @@ class User < ActiveRecord::Base
             HAVING max(sort_time_c) < :last_feed_an_time
             ORDER BY max(sort_time_c) DESC
             LIMIT 10",  {followed_ids: followed_user_ids, last_feed_an_time: last_an_time} ]
-    ActiveRecord::Associations::Preloader.new(feed_answers, question: :topics).run
+    ActiveRecord::Associations::Preloader.new(feed_answers, :question => :topics ).run
     # ActiveRecord::Associations::Preloader.new.preload(feed_answers, question: :topics)
      #  ,
+    ActiveRecord::Associations::Preloader.new(feed_answers, [:author, :upvotes_join,
+         :question => [:author, :upvotes_join, :followers_join]]).run
+
     # time_getting_feed = Time.now
     last_an_time = feed_answers.last.sort_time if (feed_answers.length > 0)
     last_qn_time = feed_questions.last.sort_time if (feed_questions.length > 0)
@@ -250,39 +254,37 @@ class User < ActiveRecord::Base
     feed_time = (feed_end_time - feed_st_time) * 1000
         
     sorted_feed_results = Question.all.sample(num_results) if sorted_feed_results.length == 0
-
+    p "feed_time: #{feed_time}" 
     return sorted_feed_results, last_an_time, last_qn_time
   end
+
 
   def weightage_topic
     time_getting_weights = Time.now
     num_topics = Topic.last.id + 1
     cached_topics_weightage = Rails.cache.fetch("topics_weightage_#{self.id}", expires_in: 2.hours) do
       topics_weightage = Array.new(num_topics){1}
-      self.questions_followed.each do |question_followed|
-        question_followed.topics.each do |topic|
-          # topics_weightage[topic.id] ||= 0
-          topics_weightage[topic.id] += 5
-        end
+      # debugger
+      qns = self.questions_followed.select("questions.id, topics.id AS topic_id").joins(:topics)
+      # debugger
+      qns.each do |question_followed|
+          topics_weightage[question_followed.topic_id] += 5
       end
 
-      self.answers_upvoted.each do |answer_upvoted|
+      ans_topics = self.answers_upvoted.includes(:question => :topics)
+
+      ans_topics.each do |answer_upvoted|
         answer_upvoted.question.topics.each do |topic|
-          # topics_weightage[topic.id] ||= 0
-
           topics_weightage[topic.id] += 5
         end
       end
 
-      self.questions_upvoted.each do |question_upvoted|
-        question_upvoted.topics.each do |topic|
-          # topics_weightage[topic.id] ||= 0
-          topics_weightage[topic.id] += 5
-        end
+      qns = self.questions_upvoted.select("questions.id, topics.id AS topic_id").joins(:topics)
+      qns.each do |question_upvoted|
+          topics_weightage[question_upvoted.topic_id] += 5
       end
 
       self.topics_followed.each do |topic|
-          # topics_weightage[topic.id] ||= 0
           topics_weightage[topic.id] += 5
       end
 
@@ -290,6 +292,8 @@ class User < ActiveRecord::Base
     end
     time_got_weights = Time.now
     self.time_for_weights = (time_getting_weights - time_got_weights) * 1000
+    # debugger
+    p "time_for_weights: #{self.time_for_weights}" 
     
     return cached_topics_weightage
   end
@@ -419,34 +423,48 @@ class User < ActiveRecord::Base
   # Make join table with scores?
   def rec_users_to_follow(num_scrolls)
     cache_st_time = Time.now
-
+    num_results = 3
     Rails.cache.delete("fof_sorted_scores_#{self.id}") if num_scrolls == 0
+    
     cached_sorted_rec_users = Rails.cache.fetch("fof_sorted_scores_#{self.id}", expires_in: 5.hours) do
-      followed_users = self.users_followed
-      topics_followed = self.topics_followed
-      questions_followed = self.questions_followed
-      num_results = 5
+      followed_users = self.users_followed.includes(:users_followed)
       fof_scores = Hash.new(){0}
       followed_users.each do |followed_user|
         followed_user.users_followed.each do |fof_user|
-          if (!followed_users.include?(fof_user))
-            if (!fof_scores[fof_user])
-              fof_user.topics_followed.each do |topic_followed|
-                fof_scores[fof_user] += 1 if topics_followed.include?(topic_followed) #Make sure this works
-              end
-              fof_user.questions_followed.each do |question_followed|
-                fof_scores[fof_user] += 1 if questions_followed.include?(question_followed) #Make sure this works
-              end
-            end
-            fof_scores[fof_user] += 3
-          end
+            fof_scores[fof_user] += 3 if (!followed_users.include?(fof_user))          
         end
-      end
+      end      
       sorted_rec_users = fof_scores.sort_by{|key, value| value}.map(&:first).reverse
     end
+
+    
     cache_end_time = Time.now
     self.cache_time_taken = cache_end_time - cache_st_time 
-    return cached_sorted_rec_users[num_scrolls*5, 5]
+    p self.cache_time_taken
+    return cached_sorted_rec_users[num_scrolls*num_results, num_results]
+
+    # topics_followed = self.topics_followed
+    # questions_followed = self.questions_followed
+    # num_results = 5
+    # fof_scores = Hash.new(){0}
+    # followed_users.each do |followed_user|
+    #   followed_user.users_followed.each do |fof_user|
+    #     if (!followed_users.include?(fof_user))
+    #       if (fof_scores[fof_user] != 0)
+    #         p "topic of followed: #{fof_user.topics_followed}"
+    #         fof_user.topics_followed.each do |topic_followed|
+    #           fof_scores[fof_user] += 1 if topics_followed.include?(topic_followed) #Make sure this works
+    #         end
+    #         fof_user.questions_followed.each do |question_followed|
+    #           fof_scores[fof_user] += 1 if questions_followed.include?(question_followed) #Make sure this works
+    #         end
+    #       end
+    #       fof_scores[fof_user] += 3
+    #     end
+    #   end
+    # end
+    
+    # p fof_scores
   end
 
 

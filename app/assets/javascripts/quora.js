@@ -23,14 +23,10 @@ window.Quora = {
     Quora.numVisitsPages = {};
   },
   initialize: function() {
-    console.log('Hello from Backbone!');
-    Quora.currentRouter = new Quora.Routers.Users({
-      $rootEl: $("div#content"),
-      $navbar: $("div#navbar")
-    });
 
-    Backbone.history.start();
     console.log("NEW")
+    console.log('Hello from Backbone!' + Quora);
+    Quora.userFollowers = Quora.userFollowers || new Quora.Collections.Users();
     Quora.allUsers = new Quora.Collections.Users();
     Quora.usersFetched = new Quora.Collections.Users();
     Quora.relevantQnUsers = new Quora.Collections.Users();
@@ -41,6 +37,17 @@ window.Quora = {
     Quora.upvotes = new Quora.Collections.Upvotes();
     Quora.topicQuestionJoins = new Quora.Collections.TopicQuestionJoins();
     Quora.relUserJoins = new Quora.Collections.QnRelevantUsers(); //Join table
+    
+    Quora.currentRouter = new Quora.Routers.Users({
+      $rootEl: $("div#content"),
+      $navbar: $("div#navbar")
+    });
+    if (!Backbone.History.started){
+          Backbone.history.start();
+    }
+    console.log('Bye from Backbone!');
+    
+    Backbone.history.navigate(window.location.hash, { trigger: true });
   }
 };
 

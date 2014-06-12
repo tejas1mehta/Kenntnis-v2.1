@@ -8,7 +8,7 @@ Quora.Views.QuestionShow = Backbone.CompositeView.extend({
     this.model.answers().each(this.addAnswer.bind(this));
     
     this.qnAuthor = Quora.allUsers.getQuestionAuthor(this.model)
-    this.qnAuthor.models[0] ? this.addAuthor() : this.listenToOnce(this.qnAuthor,"reset", this.addAuthor)
+    this.qnAuthor.models[0] ? this.addAuthor(this.qnAuthor.models[0]) : this.listenTo(this.qnAuthor,"reset", this.addAuthor)
 
     this.topicsJoinsCollection = Quora.topicQuestionJoins.getTopicJoins(this.model);
     this.addTopics(this.topicsJoinsCollection)
@@ -25,6 +25,7 @@ Quora.Views.QuestionShow = Backbone.CompositeView.extend({
 
     // var relUsersView = new Quora.Views.RelUserShow({model: this.model})
     // this.addSubview("#rel_users", relUsersView)
+    console.log("In Question Show Initialize method" + Quora)
 
   },
 
@@ -33,11 +34,13 @@ Quora.Views.QuestionShow = Backbone.CompositeView.extend({
     this.addSubview("#answers", answerShow);
   },
 
-  addAuthor: function(){
-    //this.removeAllSubviews("#author")
-    var authorMiniShow = new Quora.Views.UserMiniShow({ model: this.qnAuthor.models[0], justName: true });
+  addAuthor: function(author){
+    this.removeAllSubviews("#author")
+    if (author.models[0]){
+      var authorMiniShow = new Quora.Views.UserMiniShow({ model: author.models[0], justName: true });
 
-    this.addSubview("#author", authorMiniShow);
+      this.addSubview("#author", authorMiniShow);
+    }
   },
 
   addTopics: function(topicJoinsPassed){
@@ -58,7 +61,7 @@ Quora.Views.QuestionShow = Backbone.CompositeView.extend({
   },
 
   render: function () {
-
+    // debugger
     var view = this;
 
     var renderedContent = this.template({
