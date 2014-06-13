@@ -33,29 +33,24 @@
 <% if (user.id == Quora.currentUser.id){ %>
   <% if (!user.attributes.about){ %>    
   	<tr>
-  		
-  	    		<td> About: </td> 
-  	    		<td><form><input type="text" name="user[about]" id="about">&nbsp <input type="submit" class="btn btn-primary btn-xs"></form> </td>  	  		 
-  		
+    		<td> About: </td> 
+    		<td><form><input type="text" name="user[about]" id="about">&nbsp <input type="submit" class="btn btn-primary btn-xs"></form> </td>  	  		 
   	</tr>
   <% } %>
   <% if (!user.attributes.employment){ %>    
   	<tr>
-		<form>
 	    		<td> Employment: </td> 
 	    		<td><form><input type="text" name="user[employment]" id="employment">&nbsp <input type="submit" class="btn btn-primary btn-xs"></form> </td>  	  		 
   	</tr>
   <% } %>
   <% if (!user.attributes.location){ %>    
   	<tr>
-		<form>
 	    		<td> Location: </td> 
 	    		<td><form><input type="text" name="user[location]" id="location">&nbsp <input type="submit" class="btn btn-primary btn-xs"> </form></td>  	  		 
   	</tr>
   <% } %>
   <% if (!user.attributes.education){ %>    
   	<tr>
-		<form>
 	    		<td> Education: </td> 
 	    		<td><form><input type="text" name="user[education]" id="education">&nbsp <input type="submit" class="btn btn-primary btn-xs"> </form></td>  	  		 
   	</tr>
