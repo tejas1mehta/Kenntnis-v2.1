@@ -33,34 +33,31 @@
 <% if (user.id == Quora.currentUser.id){ %>
   <% if (!user.attributes.about){ %>    
   	<tr>
-  		<form>
+  		
   	    		<td> About: </td> 
-  	    		<td><input type="text" name="user[about]" id="about">&nbsp <input type="submit" class="btn btn-primary btn-xs"> </td>  	  		 
-  		</form>
+  	    		<td><form><input type="text" name="user[about]" id="about">&nbsp <input type="submit" class="btn btn-primary btn-xs"></form> </td>  	  		 
+  		
   	</tr>
   <% } %>
   <% if (!user.attributes.employment){ %>    
   	<tr>
 		<form>
 	    		<td> Employment: </td> 
-	    		<td><input type="text" name="user[employment]" id="employment">&nbsp <input type="submit" class="btn btn-primary btn-xs"> </td>  	  		 
-		</form>
+	    		<td><form><input type="text" name="user[employment]" id="employment">&nbsp <input type="submit" class="btn btn-primary btn-xs"></form> </td>  	  		 
   	</tr>
   <% } %>
   <% if (!user.attributes.location){ %>    
   	<tr>
 		<form>
 	    		<td> Location: </td> 
-	    		<td><input type="text" name="user[location]" id="location">&nbsp <input type="submit" class="btn btn-primary btn-xs"> </td>  	  		 
-		</form>
+	    		<td><form><input type="text" name="user[location]" id="location">&nbsp <input type="submit" class="btn btn-primary btn-xs"> </form></td>  	  		 
   	</tr>
   <% } %>
   <% if (!user.attributes.education){ %>    
   	<tr>
 		<form>
 	    		<td> Education: </td> 
-	    		<td><input type="text" name="user[education]" id="education">&nbsp <input type="submit" class="btn btn-primary btn-xs"> </td>  	  		 
-		</form>
+	    		<td><form><input type="text" name="user[education]" id="education">&nbsp <input type="submit" class="btn btn-primary btn-xs"> </form></td>  	  		 
   	</tr>
   <% } %>
 <% } %>
