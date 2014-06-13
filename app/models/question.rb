@@ -24,7 +24,7 @@ class Question < ActiveRecord::Base
 
   has_many :comments, as: :commentable
 
-  has_many :answers
+  has_many :answers, dependent: :destroy
 
   has_many :upvotes_join, class_name:"Upvote", as: :upvoteable
 
