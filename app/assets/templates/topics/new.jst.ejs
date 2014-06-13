@@ -1,16 +1,27 @@
-<h2>Add New Topic</h2>
+<form class="form-horizontal col-lg-8 col-lg-offset-2">
+  <fieldset>
+  <legend> Add a New Topic </legend>
 
-<form>
-  <label>
-    Title
-    <input type="text" name="topic[title]" value="<%=topic.attributes.title%>">
-  </label>
+    <div class="form-group">
+      <label for="topic_text" class="col-lg-2 control-label">Topic title</label>
+      <div class="col-lg-10">
+        <input type="text" id="topic_text" class="form-control" name="topic[title]" value="<%=topic.attributes.title%>">
+      </div>
+    </div>
 
-  <label>
-    Further Description
-    <input type="text" name="topic[description]" value="<%=topic.attributes.description%>">
-  </label>
 
-  <input type="submit">
+    <div class="form-group">
+      <label for="topic_descr" class="col-lg-2 control-label">Description</label>
+      <div class="col-lg-10">
+          <textarea class="form-control" rows="3" id="topic_descr"  name="topic[description]" value="<%=topic.attributes.description%>"></textarea>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-lg-10 col-lg-offset-2">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </fieldset>
 </form>
 

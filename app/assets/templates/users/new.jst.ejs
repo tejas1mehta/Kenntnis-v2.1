@@ -1,22 +1,37 @@
-<h2>New User</h2>
+<h1> Welcome to Kenntnis! </h1>
 
-<form>
-  <label>
-    Full Name
-    <input type="text" name="user[name]">
-  </label>
+<form class="form-horizontal col-lg-8 col-lg-offset-2">
+  <fieldset>
+  <legend> Sign Up: </legend>
+  
+  <div class="form-group">
+    <label for="full_name" class="col-lg-2 control-label">Full Name:</label>
+    <div class="col-lg-10">
+      <input type="text" id="full_name" class="form-control" name="user[name]">
+    </div>
+  </div>
 
-  <label>
-    Email
-    <input type="text" name="user[email]">
-  </label>
+    <div class="form-group">
+      <label for="email" class="col-lg-2 control-label">Email</label>
+      <div class="col-lg-10">
+        <input type="text" id="email" class="form-control" name="user[email]">
+      </div>
+    </div>
 
-  <label>
-    Password
-    <input type="password" name="user[password]">
-  </label>  
 
-  <input type="submit">
+    <div class="form-group">
+      <label for="pswd" class="col-lg-2 control-label">Password</label>
+      <div class="col-lg-10">
+          <input type="password" class="form-control" id="pswd" name="user[password]">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-lg-10 col-lg-offset-2">
+        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+      </div>
+    </div>
+  </fieldset>
 </form>
 
-<a href="#">Back</a>
+<a href="#"> <button class="btn btn-info btn-sm">  Log In Page </button> </a>
