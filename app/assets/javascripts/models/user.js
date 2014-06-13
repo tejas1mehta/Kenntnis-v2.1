@@ -10,9 +10,6 @@ Quora.Models.User = Backbone.Model.extend({
 
     if(response.last_an_time){
       user.lastFeedAnTime = response.last_an_time; 
-      console.log("ResponseLastFeedAnTime in User Parse:" + response.last_an_time)
-       
-      console.log("LastFeedAnTime in User Parse:" + user.lastFeedAnTime)
     }
     
     if(response.last_qn_time){
@@ -70,8 +67,6 @@ Quora.Models.User = Backbone.Model.extend({
   },
 
   parseSearch: function(response){
-    // debugger
-    // response
     user = this;
     user.searchView = []
     response.results.forEach(function(result){

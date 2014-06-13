@@ -23,11 +23,7 @@ Quora.Views.SessionNew = Backbone.View.extend({
         Quora.currentUser = new Quora.Models.User(resp.attributes)
         Quora.createSession()
         $('body').removeClass("back_image")
-        // var navbarView = new Quora.Views.NavBar({
-        //   model: Quora.currentUser
-        // });
-        // console.log("About to render")
-        // Quora.currentRouter.$navbar.html(navbarView.render().$el)
+
         Backbone.history.navigate("#users/"+ Quora.currentUser.id +"/feed", { trigger: true });
       }
     });

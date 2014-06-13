@@ -27,9 +27,6 @@ Quora.Views.UpvoteShow = Backbone.View.extend({
     debugger
     upvoteObj.save({},{
       success: function(resp){
-        // view.object.attributes.upvotes += 1
-        // Instead of having an attribute fdor upvotes, upvote collection can have filteringmethod that returns all the upvote objects and its length , that way the users who have upvoted will also be visible.
-        console.log("upvote saved")
         Quora.upvotes.add(upvoteObj)
         view.render()
       },

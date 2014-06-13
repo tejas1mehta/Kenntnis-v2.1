@@ -4,7 +4,6 @@ module Api
     def create
       @upvote = Upvote.new(upvote_params)
       if @upvote.save
-        # upvote_params[:upvoteable_type].constantize.find(:upvoteable_id).upvotes += 1
         render json: @upvote
       else
         render json: { errors: @upvote.errors.full_messages }, status: 422

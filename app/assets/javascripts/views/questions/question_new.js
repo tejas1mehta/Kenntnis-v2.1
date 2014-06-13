@@ -35,21 +35,6 @@ Quora.Views.QuestionNew = Backbone.CompositeView.extend({
     event.preventDefault();
     console.log("IN QUESTION SUBMIT")
     var params = $(event.currentTarget).serializeJSON();
-    // debugger
-    // console.log(params)
-    //
-    // var questionKeywords = params["question"]["main_question"];
-    // console.log(questionKeywords)
-    //
-    // var nlqasURL = "http://www.evi.com/q/how_tall_is_ben_affleck_in_feet_and_inches";
-    // $.ajax({
-    //   url: nlqasURL,
-    //   type: "GET",
-    //   success: function(response){
-    //     console.log(response)
-    //     debugger
-    //   }
-    // })
 
     var question = new Quora.Models.Question(params["question"]);
     debugger

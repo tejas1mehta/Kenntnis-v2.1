@@ -1,5 +1,5 @@
 Quora.CollectionMixIn = {
-addOrReplace: function(modelResponse){
+  addOrReplace: function(modelResponse){
     var newModel = new this.model(modelResponse, {parse: true});
     var modelExists = this.filter(function(model) {return model.id === newModel.id});
     if (modelExists.length === 0){ 

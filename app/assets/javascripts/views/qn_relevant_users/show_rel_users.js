@@ -27,36 +27,5 @@ Quora.Views.RelUserShow = Backbone.View.extend({
 
     return this;
   },
-  // events: {
-  //   "submit form#upvote" : "upvoteObject"
-  // },
-
-  // upvoteObject: function(event){
-  //   console.log("IN METHOD")
-  //   event.preventDefault()
-  //   var objectClass;
-  //
-  //   if (this.object instanceof Quora.Models.Question){
-  //     objectClass = "Question";
-  //   } else if (this.object instanceof Quora.Models.QuestionAnswer){
-  //     objectClass = "Answer";
-  //   }
-  //
-  //   upvoteObj = new Quora.Models.Upvote({upvoteable_id: this.object.id , upvoteable_type: objectClass})
-  //   var view = this
-  //   debugger
-  //   upvoteObj.save({},{
-  //     success: function(resp){
-  //       // view.object.attributes.upvotes += 1
-  //       // Instead of having an attribute fdor upvotes, upvote collection can have filteringmethod that returns all the upvote objects and its length , that way the users who have upvoted will also be visible.
-  //       console.log("upvote saved")
-  //       Quora.upvotes.add(upvoteObj)
-  //       view.render()
-  //     },
-  //     error: function(resp){
-  //       console.log("errorred")
-  //     }
-  //   })
-  // },
 
 });

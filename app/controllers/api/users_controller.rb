@@ -6,8 +6,6 @@ module Api
         # UserMailer.activation_email(@user).deliver!
         login_user!(@user)
         render json: @user
-        # redirect_to root_url, notice: "Successfully created your account! Check your inbox for an activation email."
-        # render partial: "api/sessions/new", locals: { board: @board }
       else
         render json: { errors: @user.errors.full_messages }, status: 422
       end
@@ -83,7 +81,6 @@ module Api
     
     private
     def user_params
-      # password doesnt show up in user params, removing user
       params.require(:user).permit(:email, :name, :about, :location,
       	:education, :employment, :credits, :session_token, :num_credits_ans).merge( params.permit(:password))
     end

@@ -7,15 +7,6 @@ Quora.Models.Question = Backbone.Model.extend({
   },
 
 
-
-  // author: function(){
-  //   this._author = this._author ||
-  //   new Quora.Models.User();
-  
-  //   return this._author;
-  // },
-
-
   parse: function (response) {
     var question = this;
     if (response.answers) {
@@ -23,13 +14,8 @@ Quora.Models.Question = Backbone.Model.extend({
       delete response.answers;
     }
 
-// Important to have the if statement here
     if(response.author){
       Quora.allUsers.add(response.author,{merge: true})
-      // this._author = Quora.allUsers.get(response.author.id)
-      // filter(function(someUser){
-      //   return (someUser.id === response.author.id)
-      // })[0]  
       delete response.author;
     }
 
@@ -47,17 +33,6 @@ Quora.Models.Question = Backbone.Model.extend({
       Quora.upvotes.add(response.upvotes_join,{merge: true, parse: true})      
       delete response.upvotes_join;
     }
-    // if(response.relevant_user_joins){
-    //   response.relevant_user_joins.forEach(function(rel_user_join){
-    //     // debugger
-    //     var newRelUserJoin = new Quora.Models.QnRelevantUser(rel_user_join,{parse: true})
-
-    //     var relUserJoinExists = Quora.relUserJoins.models.filter(function(model) {return model.id === newRelUserJoin.id});
-    //     if (relUserJoinExists.length === 0){
-    //       Quora.relUserJoins.add(newRelUserJoin)
-    //     }
-    //   })
-    // }
 
     return response;
   }

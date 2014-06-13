@@ -4,14 +4,11 @@ window.Quora = {
   Views: {},
   Routers: {},
   createSession: function(){
-    console.log("Creating Session")
     Quora.userSession = new Quora.Models.Session({ email: Quora.currentUser.get("email")});
-    // debugger
     $.ajax({
       type: "GET",
       url: "/api/users/" + Quora.currentUser.id + "/userinfo",
       success: function(response){
-        console.log("Got User Info")
         Quora.currentUser.parseUserInfo(response)
       }
     })
@@ -24,8 +21,6 @@ window.Quora = {
   },
   initialize: function() {
 
-    console.log("NEW")
-    console.log('Hello from Backbone!' + Quora);
     Quora.userFollowers = Quora.userFollowers || new Quora.Collections.Users();
     Quora.allUsers = new Quora.Collections.Users();
     Quora.usersFetched = new Quora.Collections.Users();
@@ -45,7 +40,6 @@ window.Quora = {
     if (!Backbone.History.started){
           Backbone.history.start();
     }
-    console.log('Bye from Backbone!');
     
     Backbone.history.navigate(window.location.hash, { trigger: true });
   }
@@ -71,17 +65,6 @@ Backbone.CompositeView = Backbone.View.extend({
   },
 
   attachSubviews: function () {
-    // I decided I didn't want a function that renders ALL the
-    // subviews together. Instead, I think:
-    //
-    // * The user of CompositeView should explicitly render the
-    //   subview themself when they build the subview object.
-    // * The subview should listenTo relevant events and re-render
-    //   itself.
-    //
-    // All that is necessary is "attaching" the subview `$el`s to the
-    // relevant points in the parent CompositeView.
-
     var view = this;
     _(this.subviews()).each(function (subviews, selector) {
       view.$(selector).empty();
@@ -92,7 +75,6 @@ Backbone.CompositeView = Backbone.View.extend({
   },
 
   remove: function () {
-    // $(window).undelegateEvents() //My addition
     Backbone.View.prototype.remove.call(this);
     _(this.subviews()).each(function (subviews) {
       _(subviews).each(function (subview) { subview.remove(); });

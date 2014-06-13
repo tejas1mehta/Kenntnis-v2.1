@@ -38,7 +38,6 @@ Quora.Views.TopicShow = Backbone.CompositeView.extend({
 
     this.$el.html(renderedContent);
 
-    console.log(view.model._followers)
     if (view.model._author){
       view.addAuthor(view.model._author)
     }

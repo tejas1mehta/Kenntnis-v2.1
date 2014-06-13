@@ -15,9 +15,7 @@ Quora.Views.UserSearchResults = Backbone.CompositeView.extend({
         view.addSubview(("#search_results"), searchViewObj)
       })
     }
-    //this.attachSubviews();
-    // debugger
-    // this.attachSubviews();
+
     return this;
   },
 

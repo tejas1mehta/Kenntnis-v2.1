@@ -1,5 +1,3 @@
-// Number of upvotes and followings should also go here?
-
 Quora.Views.FollowingShow = Backbone.View.extend({
   template: JST["followings/show"],
 
