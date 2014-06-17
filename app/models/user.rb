@@ -99,33 +99,6 @@ class User < ActiveRecord::Base
   has_many :topics_created,
     class_name: "Topic",
     foreign_key: :author_id
-  # Add upvoted Q/A of friends as well
-  has_many :feed_up_followers_questions,
-    through: :users_followed,
-    source: :questions_upvoted,
-    order: "upvoted_join.created_at DESC",
-    limit: 5 
-
-  has_many :feed_up_followers_answers,
-    through: :users_followed,
-    source: :answers_upvoted
-    # created by followed
-  has_many :feed_followers_questions,
-    through: :users_followed,
-    source: :questions_created
-
-  has_many :feed_followers_answers,
-      through: :users_followed,
-      source: :answers_created
-
-  # Questions in topics
-  has_many :feed_topics_questions,
-    through: :topics_followed,
-    source: :questions
-
-  has_many :feed_followedques_answers,
-    through: :questions_followed,
-    source: :answers
 
   has_many :upvoted_join,
     class_name: "Upvote",
@@ -146,95 +119,38 @@ class User < ActiveRecord::Base
     through: :users_followed,
     source: :users_followed
 
-  has_many :recent_upvote_joins,
-  class_name: "Upvote",
-  foreign_key: :user_id
+  # has_many :recent_upvote_joins,
+  # class_name: "Upvote",
+  # foreign_key: :user_id
 
   attr_accessor :time_for_feed, :time_for_profile, :time_for_weights, :cache_time_taken
 
   def feed_objects(last_an_time, last_qn_time)
-    # Add questions followed by followed users?
-
-    topics_weightage = self.weightage_topic()
-    # debugger
-    feed_st_time = Time.now
-    feed_scores = Hash.new(){0}
-    num_results = 10
+    num_results = 15
 
     last_an_time =Time.now if last_an_time == "0"
     last_qn_time = Time.now if last_qn_time == "0"
-    followed_user_ids = Following.where(f_id: self.id, followable_type: "User").pluck(:followable_id)
-    followed_topic_ids = Following.where(f_id: self.id, followable_type: "Topic").pluck(:followable_id)
-    feed_questions = Question.find_by_sql ["SELECT qn_list.id AS id,
-              MAX(qn_list.main_question) AS main_question,
-              MAX(qn_list.description) AS description,
-              MAX(qn_list.author_id) AS author_id,
-              MAX(qn_list.upvotes) AS upvotes,
-              MAX(qn_list.created_at) AS created_at,
-              MAX(sort_time_c) AS sort_time
-              FROM (
-              SELECT questions.*, upvotes.created_at AS sort_time_c
-              FROM questions
-              INNER JOIN upvotes
-              ON (upvotes.upvoteable_id = questions.id AND upvotes.upvoteable_type = 'Question')
-              WHERE (upvotes.user_id IN (:followed_ids)) 
-              UNION
-              SELECT questions.*, followings.created_at AS sort_time_c
-              FROM questions
-              INNER JOIN followings
-              ON (followings.followable_id = questions.id AND followings.followable_type = 'Question')
-              WHERE (followings.f_id IN (:followed_ids))
-              UNION
-              SELECT questions.*, questions.created_at AS sort_time_c
-                      FROM questions 
-                      WHERE (questions.author_id IN (:followed_ids))
-              UNION
-              SELECT questions.*, topic_question_joins.created_at AS sort_time_c
-              FROM questions
-              INNER JOIN topic_question_joins
-              ON (questions.id = topic_question_joins.question_id)
-              WHERE (topic_question_joins.topic_id IN (:topic_ids)) )  AS qn_list
-              GROUP BY qn_list.id
-              HAVING max(sort_time_c) < :last_feed_qn_time
-              ORDER BY max(sort_time_c) DESC
-              LIMIT 5",  {followed_ids: followed_user_ids, topic_ids: followed_topic_ids, last_feed_qn_time: last_qn_time} ]
-    ActiveRecord::Associations::Preloader.new(feed_questions, :topics).run
-    # ActiveRecord::Associations::Preloader.new.preload(feed_questions, :topics)
-    ActiveRecord::Associations::Preloader.new(feed_questions, [:author, :upvotes_join, :followers_join]).run
-
-              # .includes(:topics) to feed_questions may save N+1 queries!
-              #Change syntax for PostGRESQL LIMIT 20 OFFSET 10, SQLite: LIMIT 10, 20
+ 
+    feed_questions = Question.get_feed_qns(self.users_followed_ids, self.topics_followed_ids, last_qn_time)
+    ActiveRecord::Associations::Preloader.new(feed_questions, [:topics, :author, :upvotes_join, :followers_join]).run
     
-    feed_answers = Answer.find_by_sql ["SELECT an_list.id AS id,
-            MAX(an_list.main_answer) AS main_answer,
-            MAX(an_list.question_id) AS question_id,
-            MAX(an_list.author_id) AS author_id,
-            MAX(an_list.upvotes) AS upvotes,
-            MAX(an_list.created_at) AS created_at,
-            MAX(sort_time_c) AS sort_time
-            FROM (
-            SELECT answers.*, upvotes.created_at AS sort_time_c
-            FROM answers
-            INNER JOIN upvotes
-            ON (upvotes.upvoteable_id = answers.id AND upvotes.upvoteable_type = 'Answer')
-            WHERE (upvotes.user_id IN (:followed_ids)) 
-            UNION
-            SELECT answers.*, answers.created_at AS sort_time_c
-                    FROM answers 
-                    WHERE (answers.author_id IN (:followed_ids)))  AS an_list
-            GROUP BY an_list.id
-            HAVING max(sort_time_c) < :last_feed_an_time
-            ORDER BY max(sort_time_c) DESC
-            LIMIT 10",  {followed_ids: followed_user_ids, last_feed_an_time: last_an_time} ]
-    ActiveRecord::Associations::Preloader.new(feed_answers, :question => :topics ).run
-    # ActiveRecord::Associations::Preloader.new.preload(feed_answers, question: :topics)
-     #  ,
+    feed_answers = Answer.get_feed_ans(self.users_followed_ids, last_an_time) 
     ActiveRecord::Associations::Preloader.new(feed_answers, [:author, :upvotes_join,
-         :question => [:author, :upvotes_join, :followers_join]]).run
+         :question => [:author, :upvotes_join, :followers_join, :topics]]).run
 
-    # time_getting_feed = Time.now
     last_an_time = feed_answers.last.sort_time if (feed_answers.length > 0)
     last_qn_time = feed_questions.last.sort_time if (feed_questions.length > 0)
+    
+    sorted_feed_results = sort_feed_results(feed_answers, feed_questions)
+    sorted_feed_results = Question.all.sample(num_results) if sorted_feed_results.length == 0
+
+    return sorted_feed_results, last_an_time, last_qn_time
+  end
+
+  def sort_feed_results(feed_answers, feed_questions)
+    topics_weightage = self.weightage_topic()
+    feed_scores = Hash.new(){0}
+
     feed_questions.each do |question|
       question.topics.each do |topic|
         feed_scores[question] += topics_weightage[topic.id] || 1
@@ -249,24 +165,15 @@ class User < ActiveRecord::Base
       feed_scores[answer] += answer.upvotes
     end
 
-    sorted_feed_results = feed_scores.sort_by{|key, value| value}.map(&:first).reverse
-    feed_end_time = Time.now
-    feed_time = (feed_end_time - feed_st_time) * 1000
-        
-    sorted_feed_results = Question.all.sample(num_results) if sorted_feed_results.length == 0
-    p "feed_time: #{feed_time}" 
-    return sorted_feed_results, last_an_time, last_qn_time
+    sorted_feed_results = feed_scores.sort_by{|key, value| value}.map(&:first).reverse   
+    return sorted_feed_results
   end
 
-
   def weightage_topic
-    time_getting_weights = Time.now
     num_topics = Topic.last.id + 1
     cached_topics_weightage = Rails.cache.fetch("topics_weightage_#{self.id}", expires_in: 2.hours) do
       topics_weightage = Array.new(num_topics){1}
-      # debugger
       qns = self.questions_followed.select("questions.id, topics.id AS topic_id").joins(:topics)
-      # debugger
       qns.each do |question_followed|
           topics_weightage[question_followed.topic_id] += 5
       end
@@ -290,96 +197,61 @@ class User < ActiveRecord::Base
 
       topics_weightage
     end
-    time_got_weights = Time.now
-    self.time_for_weights = (time_getting_weights - time_got_weights) * 1000
-    # debugger
-    p "time_for_weights: #{self.time_for_weights}" 
     
     return cached_topics_weightage
+  end
+  
+  def preload_qns_ans(objs_array)
+    qns_array = []
+    ans_array = []
+    objs_array.each do |object|
+      if object.class == Answer
+        ans_array.push(object)
+      elsif object.class == Question
+        qns_array.push(object)
+      end
+    end
+    ActiveRecord::Associations::Preloader.new(qns_array, [:author, :upvotes_join, :followers_join]).run
+    ActiveRecord::Associations::Preloader.new(ans_array, [:author, :upvotes_join,
+         :question => [:author, :upvotes_join, :followers_join]]).run
   end
 
   def profile_view(last_obj_sort_time)
     time_getting_profile = Time.now
-
-    #Change so that objects are sorted by the time at which an object was followed/upvoted rather
-    #than created at
     num_results = 10
-    # Add time constraint on fetched associations?
-    # debugger
-    
+
     Rails.cache.delete("profile_view_#{self.id}") if last_obj_sort_time == "0"
-    time1 = Time.now
     cached_objects = Rails.cache.fetch("profile_view_#{self.id}", expires_in: 2.hours) do
-      profile_questions = Question.find_by_sql ["SELECT qn_list.id AS id,
-                  MAX(qn_list.main_question) AS main_question,
-                  MAX(qn_list.description) AS description,
-                  MAX(qn_list.author_id) AS author_id,
-                  MAX(qn_list.upvotes) AS upvotes,
-                  MAX(qn_list.created_at) AS created_at,
-                  MAX(sort_time_c) AS sort_time
-                FROM (
-                SELECT questions.*, upvotes.created_at AS sort_time_c
-                  FROM questions
-                  INNER JOIN upvotes
-                  ON (upvotes.upvoteable_id = questions.id AND upvotes.upvoteable_type = 'Question')
-                  WHERE (upvotes.user_id IN (:profile_user_id)) 
-                UNION
-                SELECT questions.*, followings.created_at AS sort_time_c
-                  FROM questions
-                  INNER JOIN followings
-                  ON (followings.followable_id = questions.id AND followings.followable_type = 'Question')
-                  WHERE (followings.f_id IN (:profile_user_id))
-                UNION
-                SELECT questions.*, questions.created_at AS sort_time_c
-                  FROM questions 
-                  WHERE (questions.author_id IN (:profile_user_id)) )  AS qn_list
-                GROUP BY qn_list.id
-                ORDER BY max(sort_time_c) DESC", {profile_user_id: [self.id]} ]
-
-      profile_answers = Answer.find_by_sql ["SELECT an_list.id AS id,
-                    MAX(an_list.main_answer) AS main_answer,
-                    MAX(an_list.question_id) AS question_id,
-                    MAX(an_list.author_id) AS author_id,
-                    MAX(an_list.upvotes) AS upvotes,
-                    MAX(an_list.created_at) AS created_at,
-                    MAX(sort_time_c) AS sort_time
-                   FROM (
-                   SELECT answers.*, upvotes.created_at AS sort_time_c
-                     FROM answers
-                     INNER JOIN upvotes
-                     ON (upvotes.upvoteable_id = answers.id AND upvotes.upvoteable_type = 'Answer')
-                     WHERE (upvotes.user_id IN (:profile_user_id)) 
-                   UNION
-                   SELECT answers.*, answers.created_at AS sort_time_c
-                      FROM answers 
-                      WHERE (answers.author_id IN (:profile_user_id)))  AS an_list
-                   GROUP BY an_list.id
-                   ORDER BY max(sort_time_c) DESC",  {profile_user_id:  [self.id]} ]
-
+      profile_questions = Question.get_profile_qns(self.id)
+      profile_answers = Answer.get_ans([self.id], Time.now) 
       all_objects = (profile_questions + profile_answers).sort{|obj1, obj2| (obj2.sort_time <=> obj1.sort_time)}  
       all_objects
     end
-    time2= Time.now
-    time_taken = time2 - time1
+    
     if last_obj_sort_time == "0"
-      return cached_objects[0, num_results]
+      profile_objs = cached_objects[0, num_results]
     else
       last_obj_index = cached_objects.find_index{|obj| obj.sorted_time_str == last_obj_sort_time}
-      return cached_objects[last_obj_index + 1 , num_results]
+      profile_objs = cached_objects[last_obj_index + 1 , num_results]
     end
-    # last_obj_created = cached_objects.select{|cached_obj| cached_obj.}
-    # show_objects = all_objects.slice(start_index,end_index)
-    # time_got_profile = Time.now
-
-    # self.time_for_profile = (time_getting_profile - time_got_profile)*1000
-    # debugger
-    # return show_objects
-    # followed questions and topics
-    # upvoted questions and answers
-    # for each question/answer/topic upvoted /followed, add 5 to weight of all topics concerning the Q/A/T. - > provides weight for each topic
+    preload_qns_ans(profile_objs)
+    return profile_objs
   end
 
-  def self.search(keywords)
+  # searchable do
+  #   text :email , boost: 2.0
+  #   text :name, boost: 3.0
+  #   text :location
+  #   text :education
+  #   text :employment
+  # end
+
+  def self.search1(keywords)
+    # @search = Sunspot.search(User, Topic, Question, Answer) do
+    #   keywords keywords_entered
+    # end
+
+    # debugger
     all_topics = Topic.all
     all_questions = Question.all
     all_users = User.all
@@ -422,7 +294,6 @@ class User < ActiveRecord::Base
   end
   # Make join table with scores?
   def rec_users_to_follow(num_scrolls)
-    cache_st_time = Time.now
     num_results = 3
     Rails.cache.delete("fof_sorted_scores_#{self.id}") if num_scrolls == 0
     
@@ -437,84 +308,60 @@ class User < ActiveRecord::Base
       sorted_rec_users = fof_scores.sort_by{|key, value| value}.map(&:first).reverse
     end
 
-    
-    cache_end_time = Time.now
-    self.cache_time_taken = cache_end_time - cache_st_time 
-    p self.cache_time_taken
     return cached_sorted_rec_users[num_scrolls*num_results, num_results]
-
-    # topics_followed = self.topics_followed
-    # questions_followed = self.questions_followed
-    # num_results = 5
-    # fof_scores = Hash.new(){0}
-    # followed_users.each do |followed_user|
-    #   followed_user.users_followed.each do |fof_user|
-    #     if (!followed_users.include?(fof_user))
-    #       if (fof_scores[fof_user] != 0)
-    #         p "topic of followed: #{fof_user.topics_followed}"
-    #         fof_user.topics_followed.each do |topic_followed|
-    #           fof_scores[fof_user] += 1 if topics_followed.include?(topic_followed) #Make sure this works
-    #         end
-    #         fof_user.questions_followed.each do |question_followed|
-    #           fof_scores[fof_user] += 1 if questions_followed.include?(question_followed) #Make sure this works
-    #         end
-    #       end
-    #       fof_scores[fof_user] += 3
-    #     end
-    #   end
-    # end
-    
-    # p fof_scores
   end
 
+  def return_objects(last_obj_created_at, cached_objs)
+    num_results = 10
+    if last_obj_created_at == "0"
+      user_objs = cached_objs.limit(10)
+    else
+      last_obj_index = cached_objs.find_index{|obj| obj.sorted_time_str == last_obj_created_at}
+      user_objs = cached_objs.limit(10).offset(last_obj_index)
+    end
+    return user_objs
+  end
 
   def show_qns_created(last_qn_created_at)
-    num_results = 10
-    # debugger
     Rails.cache.delete("qns_created_#{self.id}") if last_qn_created_at == "0"
-    time1 = Time.now
     cached_questions = Rails.cache.fetch("qns_created_#{self.id}", expires_in: 2.hours) do
-      questions_created = Question.find_by_sql ["
-                SELECT questions.*, questions.created_at AS sort_time
-                FROM questions 
-                WHERE (questions.author_id = :profile_user_id) 
-                ORDER BY sort_time DESC", {profile_user_id: self.id} ]      
+      questions_created = self.questions_created.select("questions.*, questions.created_at AS sort_time").
+      order("created_at DESC")   
     end   
+    user_qns = return_objects(last_qn_created_at,cached_questions)
 
-    if last_qn_created_at == "0"
-      return cached_questions[0, num_results]
-    else
-      last_qn_index = cached_questions.find_index{|qn| qn.sorted_time_str == last_qn_created_at}
-      return cached_questions[last_qn_index + 1 , num_results]
-    end
-
+    ActiveRecord::Associations::Preloader.new(user_qns, [:author, :upvotes_join, :followers_join]).run
+    return user_qns
   end
-
+  
   def show_ans_created(last_an_created_at)
-    num_results = 10
-    # debugger
     Rails.cache.delete("ans_created_#{self.id}") if last_an_created_at == "0"
     
     cached_answers = Rails.cache.fetch("ans_created_#{self.id}", expires_in: 2.hours) do
-      answers_created = Answer.find_by_sql ["
-                SELECT answers.*, answers.created_at AS sort_time
-                FROM answers 
-                WHERE (answers.author_id = :profile_user_id) 
-                ORDER BY sort_time DESC", {profile_user_id: self.id} ]      
+      answers_created = self.answers_created.select("answers.*, answers.created_at AS sort_time").
+      order("created_at DESC")   
     end   
+    puts "before"
+    user_ans = return_objects(last_an_created_at, cached_answers)
+    ActiveRecord::Associations::Preloader.new(user_ans, [:author, :upvotes_join,
+     :question => [:author, :upvotes_join, :followers_join]]).run
 
-    if last_an_created_at == "0"
-      return cached_answers[0, num_results]
+    return user_ans
+  end
+
+  def return_users(last_obj_created_at, cached_objs)
+    num_results = 10
+    if last_obj_created_at == "0"
+      user_objs = cached_objs[0,10]
     else
-      last_an_index = cached_answers.find_index{|an| an.sorted_time_str == last_an_created_at}
-      return cached_answers[last_an_index + 1 , num_results]
+      last_obj_index = cached_objs.find_index{|obj| obj.sorted_time_str == last_obj_created_at}
+      user_objs = cached_objs[last_obj_index + 1, 10]
     end
-
+    return user_objs
   end
 
   def followers_fn(last_follower_created_at)
     num_results = 10
-    # debugger
     Rails.cache.delete("followers_created_#{self.id}") if last_follower_created_at == "0"
     time1 = Time.now
     cached_followers = Rails.cache.fetch("followers_created_#{self.id}", expires_in: 2.hours) do
@@ -526,20 +373,15 @@ class User < ActiveRecord::Base
                 WHERE (followings.followable_id = :profile_user_id) 
                 ORDER BY sort_time DESC", {profile_user_id: self.id} ]      
     end   
+    user_folls = return_users(last_follower_created_at, cached_followers)
 
-    if last_follower_created_at == "0"
-      return cached_followers[0, num_results]
-    else
-      last_follower_index = cached_followers.find_index{|follower| follower.sorted_time_str == last_follower_created_at}
+    ActiveRecord::Associations::Preloader.new(user_folls,:user_followers_join).run
 
-      return cached_followers[last_follower_index + 1 , num_results]
-    end
-
+    return user_folls
   end
 
   def followed_users_fn(last_fu_created_at)
     num_results = 10
-    # debugger
     Rails.cache.delete("fu_created_#{self.id}") if last_fu_created_at == "0"
     cached_followed_users = Rails.cache.fetch("fu_created_#{self.id}", expires_in: 2.hours) do
       followed_users = User.find_by_sql ["
@@ -551,13 +393,10 @@ class User < ActiveRecord::Base
                 ORDER BY sort_time DESC", {profile_user_id: self.id} ]    
     end   
 
-    if last_fu_created_at == "0"
-      return cached_followed_users[0, num_results]
-    else
-      last_fu_index = cached_followed_users.find_index{|fu| fu.sorted_time_str == last_fu_created_at}
-      return cached_followed_users[last_fu_index + 1 , num_results]
-    end
+    followed_users = return_users(last_fu_created_at, cached_followed_users)
+    ActiveRecord::Associations::Preloader.new(followed_users,:user_followers_join).run
 
+    return followed_users
   end
   
   def self.array_sort(array_results)

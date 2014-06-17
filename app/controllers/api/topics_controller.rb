@@ -1,5 +1,6 @@
 module Api
   class TopicsController < ApplicationController
+    before_action :require_login
 
     def index
       @topics = Topic.all

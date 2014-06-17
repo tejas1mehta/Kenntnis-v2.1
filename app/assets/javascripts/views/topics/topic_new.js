@@ -22,6 +22,7 @@ Quora.Views.TopicNew = Backbone.View.extend({
     this.model.save(params["topic"], {
       success: function (resp) {
         //add to question's answer collection 
+        Quora.topics.add(this.model,{merge:true})
         Backbone.history.navigate("#topics/" + view.model.id, { trigger: true });
       }
     });

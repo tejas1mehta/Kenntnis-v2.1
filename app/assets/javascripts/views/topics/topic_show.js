@@ -2,48 +2,54 @@
 Quora.Views.TopicShow = Backbone.CompositeView.extend({
   template: JST["topics/show"],
 
-  initialize: function () {
+  initialize: function (options) {
     this.listenTo(this.model, "sync", this.render);
-
+    if (this.addQns = options.addQuestions){
+      this.filCols = [];
+      this.filCols.topicsJoinsCollection = Quora.topicQuestionJoins.getQnJoins(this.model.id);
+      this.filCols.topicsJoinsCollection.each(this.addQn.bind(this))
+      this.listenTo(this.filCols.topicsJoinsCollection,"add", this.addQn)
+    } else{ 
+      this.$el.addClass("posts-des")
+    }
+    this.model.attributes.author_id ? this.addAuthor() : this.listenToOnce(this.model, "sync", this.addAuthor)
     var followingView = new Quora.Views.FollowingShow({object: this.model})
-    this.addSubview(".following-btn", followingView)
+    this.addSubview(".topic-following-btn", followingView)
+
+    this.open = false;
+  },
+  
+  events:{
+    "click #tc-edit" : "editObj",
+    "submit #tc-update" : "endEditing"
   },
 
-  addAuthor: function(author){
-    var renderedAuthor = "<a href='#users/" + author.get("id") +"'>" + author.get("name") + "</a>";
+  addAuthor: function(){
+      var author = Quora.allUsers.getOrAdd(this.model.get("author_id"));
+      var authorMiniShow = new Quora.Views.UserMiniShow({ model: author, justName: true });
 
-    $("#author").append(renderedAuthor)
+      this.addSubview("#tc-author", authorMiniShow);
   },
 
-  addQuestion: function(question){
-    var renderedQuestion = "<a href='#questions/" + question.get("id") + "'>" + question.get("main_question") + "</a><br>";
-
-    $("#questions").append(renderedQuestion)
+  addQn: function(newTopicJoin){
+    var qn = Quora.questions.get(newTopicJoin.get("question_id"));
+    var questionShow = new Quora.Views.QuestionShow({ model: qn });
+    this.addSubview("#questions", questionShow); 
   },
-
 
   render: function () {
     var view = this;
     var renderedContent = this.template({
-      topic : this.model
+      topic : this.model,
+      addQns: this.addQns,
+      isEditing : this.open
     });
 
-    if(view.model._questions){
-      view.model._questions.forEach(function(question){
-        var questionShow =
-          new Quora.Views.QuestionMiniShow({ model: question });
-          view.addSubview("#questions", questionShow);
-      })
-    }
-
     this.$el.html(renderedContent);
-
-    if (view.model._author){
-      view.addAuthor(view.model._author)
-    }
 
     this.attachSubviews();
 
     return this;
   }
 });
+_.extend(Quora.Views.TopicShow.prototype, Quora.ViewMixIn);

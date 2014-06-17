@@ -3,15 +3,19 @@ Quora.Collections.TopicQuestionJoins = Backbone.Collection.extend({
   model: Quora.Models.TopicQuestionJoin,
 
   getTopicJoins: function(question){
-    var findTopicJoinsCriteria = function(question){
-      var qnTopicJoins = this.filter(function(topicJoin){
-         return (parseInt(question.id) === topicJoin.get("question_id"))
-      });
-
-      return qnTopicJoins
+    var findTopicJoinCriteria = function(){
+         return (parseInt(question.id) === this.get("question_id"))
     };
 
-    return this.findFilteredObjects(findTopicJoinsCriteria.bind(this, question))
+    return this.findFilteredObjects(findTopicJoinCriteria)
+  },
+
+  getQnJoins: function(topic_id){
+    var findQnJoinCriteria = function(){
+      return (parseInt(topic_id) === this.get("topic_id"))
+    };
+
+    return this.findFilteredObjects(findQnJoinCriteria)
   },
 
 });

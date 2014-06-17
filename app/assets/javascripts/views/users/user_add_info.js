@@ -17,9 +17,7 @@ Quora.Views.UserAddInfo = Backbone.View.extend({
     return this;
   },
 
-  submit: function (event) {
-    console.log("SUBMITTED")
-    
+  submit: function (event) {  
     var view = this;
     event.preventDefault();
     var params = $(event.currentTarget).serializeJSON();

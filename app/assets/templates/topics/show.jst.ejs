@@ -1,9 +1,21 @@
-<h1> Topic: <%= topic.escape("title") %></h1>
-<h5 id="author"> Author:  </h5>
-<div class="following-btn"> </div>
+<% if (isEditing){ %>
+	<form id="tc-update">
+		<h1> Topic: <input type="text" class="form-control" name="topic[title]" value="<%= topic.escape("title") %>"><h1>
+		<button type="submit" class="btn btn-info btn-xs" > Update </button>
+<% } else { %>
+	<h1> Topic: <%= topic.escape("title") %></h1>
+	<button class="btn btn-info btn-xs" id="tc-edit"> Edit </button>
+<% } %>
 
-<p> Description: <%= topic.escape("description") %></p>
+<h5 id="tc-author">  </h5>
+<% if (addQns){ %>
+	<% if (isEditing){ %>
+      <textarea class="form-control" name="topic[description]" value="<%= topic.escape("description") %>"></textarea>
+      </form>
+	<% } else { %>
+	  <h4> Description: <%= topic.escape("description") %></h4>
+    <% } %>
+	<div id="questions"> Questions: </div>
+<% } %>
 
-<div id="questions"> Questions: </div>
-
-
+<div class="topic-following-btn"> </div>

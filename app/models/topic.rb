@@ -1,6 +1,11 @@
 class Topic < ActiveRecord::Base
   validates :title, presence: true
 
+  # searchable do
+  #   text :title , boost: 2.0
+  #   text :description
+  # end
+  
   has_many :questions_join, 
     class_name: "TopicQuestionJoin",
     foreign_key: :topic_id
@@ -19,12 +24,13 @@ class Topic < ActiveRecord::Base
     through: :followers_join,
     source: :follower
 
-
-
   belongs_to :author,
     class_name: "User",
     foreign_key: :author_id
     # Topic user knowledge table
+
+
+  
   def knowledgable_users
     topic_answers = self.answers
     topic_user_scores = Hash.new(){0}

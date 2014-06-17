@@ -6,6 +6,18 @@ Quora.Models.Question = Backbone.Model.extend({
     return this._answers;
   },
 
+  author: function(){
+    if (this.attributes.author_id && !this._author){
+      this._author = Quora.allUsers.get("author_id");
+    }
+    if (!this._author){
+      this._author = new Quora.Models.User();
+      Quora.allUsers.add(this._author)
+    }
+
+    return this._author
+  },
+
 
   parse: function (response) {
     var question = this;
@@ -15,6 +27,7 @@ Quora.Models.Question = Backbone.Model.extend({
     }
 
     if(response.author){
+      // this.author().set(response.author)
       Quora.allUsers.add(response.author,{merge: true})
       delete response.author;
     }

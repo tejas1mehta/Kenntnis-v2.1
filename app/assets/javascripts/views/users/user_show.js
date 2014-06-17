@@ -29,7 +29,6 @@ Quora.Views.UserShow = Backbone.CompositeView.extend({
     } else {
       this.last_obj_time = -1
     }
-    console.log("LastObjTime in UserShow View:" + view.last_obj_time)
     
   },
 
@@ -81,10 +80,10 @@ Quora.Views.UserShow = Backbone.CompositeView.extend({
     view.moreResults()
   },
 
-  reRenderFollowingView: function(event){
-    console.log("IN USERS SHOW FOLLOWING")
-    event.preventDefault();
-    this.removeSubview(".user_following_btn", this.followingView)
-    this.addSubview(".user_following_btn", this.followingView)
-  },
+  // reRenderFollowingView: function(event){
+  //   console.log("IN USERS SHOW FOLLOWING")
+  //   event.preventDefault();
+  //   this.removeSubview(".user_following_btn", this.followingView)
+  //   this.addSubview(".user_following_btn", this.followingView)
+  // },
 });

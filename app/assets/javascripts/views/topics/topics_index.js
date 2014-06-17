@@ -1,7 +1,7 @@
 Quora.Views.TopicsIndex = Backbone.View.extend({
 
   template: JST['topics/index'],
-  tagName: "div class='col-lg-4 col-lg-offset-4' style='font-size:150%'",
+  tagName: "div class='col-lg-4' style='font-size:120%'",
   initialize: function () {
     this.listenTo(this.collection, "sync", this.render);
   },

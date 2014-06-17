@@ -11,11 +11,24 @@ Quora.Collections.Followings = Backbone.Collection.extend({
     return new Quora.Collections.Followings(allFollowings)
   },
 
+//for Users
+  doesExist: function(user_id, followable_id, followable_type){
+    var followingExists = this.filter(function(followObj){
+       return (user_id === followObj.get("f_id") &&
+         followable_id === followObj.get("followable_id") &&
+         followable_type === followObj.get("followable_type"))
+    })
+
+    return (followingExists[0])  
+  },
+// Only call on allFollowings collection
   findFriendFollowings: function(){
     var collectionFollowings = this
-    var friendModels = Quora.userFollowers.filter(function(userFollower){
+
+    var friendModels = Quora.allUsers.filter(function(someUser){
       var isFollowing = collectionFollowings.filter(function(followObj){
-        return (followObj.get("f_id") === userFollower.id)
+        return (followObj.get("f_id") === someUser.id && (Quora.followings.doesExist(Quora.currentUser.id, someUser.id, "User")
+                 || (someUser.id === Quora.currentUser.id)))
       }).length;
 
       return (isFollowing)

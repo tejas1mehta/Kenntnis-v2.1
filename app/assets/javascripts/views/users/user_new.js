@@ -22,16 +22,14 @@ Quora.Views.UserNew = Backbone.View.extend({
       success: function (resp) {
         // Add user ID?
         Quora.currentUser = new Quora.Models.User(resp.attributes)
+        Quora.allUsers.add(Quora.currentUser, {merge:true})
+        
+        $('body').removeClass("back_image")   
         var navbarView = new Quora.Views.NavBar({
           model: Quora.currentUser
         });
-        $('body').removeClass("back_image")
-        Quora.userFollowers = new Quora.Collections.Users();
-        Quora.userFollowers.add(Quora.currentUser)
-        console.log("About to render")
         Quora.currentRouter.$navbar.html(navbarView.render().$el)
         Backbone.history.navigate("#users/settings", { trigger: true });
-        //Add to users collection?
       }
     });
   }

@@ -1,15 +1,17 @@
-<ul style="padding-right:23px" class="show_bottom_border">
-  <h4><a href=<%= "#users/" + user.id %> ><%= user.escape("name") %> </a> </h4>
-  <div class="following-btn"></div>
+<% if (onlyName){ %>
+	<h5>Author: <a href=<%= "#users/" + user.id %> ><%= user.attributes.name %> </a> </h5>
+<% } else { %>
+	<ul style="padding-right:23px">
+	  <h4><a href=<%= "#users/" + user.id %> ><%= user.escape("name") %> </a> </h4>
+	  <div class="following-btn"></div>
 
 
-	<% if (user.attributes.location){ %>
+		<% if (user.attributes.location){ %>
 
-				<h6>
-		    		Location: <%= user.escape("location") %>
-	  		</h6>
+					<h6>
+			    		Location: <%= user.escape("location") %>
+		  		</h6>
 
-	<% } %>
-
-
-</ul>
+		<% } %>
+	</ul>
+<% } %>

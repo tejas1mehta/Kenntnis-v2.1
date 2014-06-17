@@ -11,7 +11,7 @@
   <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </head>
 <body class="container" >
-
+<div id="js-alerts"> </div>
   <script type="application/json" id="bootstrapped_current_user">
       { "current_user": <%= !!current_user ? current_user.to_json.html_safe : "".to_json.html_safe  %> }
   </script>

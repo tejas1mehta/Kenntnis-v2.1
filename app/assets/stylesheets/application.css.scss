@@ -17,6 +17,26 @@
 width: 1500px;
 }
 
+.posts-des {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background-color: #d9edf7;
+  border-color: #bce8f1;
+  color: #3a87ad;
+}
+
+.qns-des {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+  color: #468847;
+}
+
 #side-nav {
   top: 100px;
   position: fixed;

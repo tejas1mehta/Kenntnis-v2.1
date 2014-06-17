@@ -15,15 +15,26 @@ Quora.Collections.Upvotes = Backbone.Collection.extend({
   findFriendVotes: function(){
     var collectionUpvotes = this
     // debugger
-    var friendModels = Quora.userFollowers.filter(function(userFollower){
+    var friendModels = Quora.allUsers.filter(function(someUser){
       var hasUpvoted = collectionUpvotes.filter(function(upvoteObj){
-        return (upvoteObj.get("user_id") === userFollower.id)
+        return (upvoteObj.get("user_id") === someUser.id  && (Quora.followings.doesExist(Quora.currentUser.id, someUser.id, "User")
+          || (someUser.id === Quora.currentUser.id)))
       }).length;
 
       return (hasUpvoted)
     });
 
     return friendModels
+  },
+
+  doesUpvoteExist: function(user_id, upvoteable_id, upvoteable_type){
+    var upvoteExists = this.filter(function(followObj){
+       return (user_id === followObj.get("user_id") &&
+         upvoteable_id === followObj.get("upvoteable_id") &&
+         upvoteable_type === followObj.get("upvoteable_type"))
+    })
+
+    return (upvoteExists[0])  
   },
 
 });

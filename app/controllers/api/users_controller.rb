@@ -1,5 +1,7 @@
 module Api
   class UsersController < ApplicationController
+    before_action :require_login, except: [:new, :create]
+
     def create
       @user = User.new(user_params)
       if @user.save
@@ -23,7 +25,6 @@ module Api
 
     def show #User profile
       @user = User.find(params[:id])
-      # debugger
       case data_to_fetch_param
       when "questions_created"
         @results = @user.show_qns_created(last_obj_time_param)
@@ -44,6 +45,8 @@ module Api
         @results, @last_an_time, @last_qn_time = @user.feed_objects(last_an_time_param, last_qn_time_param)
         @rec_users = @user.rec_users_to_follow(num_scroll_params)
         render :feed
+      when "user_info"
+        render :user_info
       end
     end
 
@@ -75,7 +78,7 @@ module Api
     def search
       search_keywords = params.require(:keywords)
 
-      @results = User.search(search_keywords)
+      @results = User.search1(search_keywords)
       render :search #json: @results
     end
     

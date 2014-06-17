@@ -1,14 +1,26 @@
 Quora.Collections.Users = Backbone.Collection.extend({
 	url: "api/users",
   model: Quora.Models.User,
+  getOrFetchUser: function (id) {
+    var curCollection = this;
 
-  getQuestionAuthor: function(question){
-    var getAuthorCriteria = function(question){
-      var userModel = this.get(question.attributes.author_id)
-      return userModel
-    };
+    var curModel;
 
-    return this.findFilteredObjects(getAuthorCriteria.bind(this, question), question)
+    if (!(curModel = this.get(id))){
+      curModel = new this.model({ id: id });
+    }
+
+    curModel.fetch({
+      data: {
+           last_obj_time: 0,
+           data_to_fetch: "profile_results"
+      },
+      success: function () {
+        curCollection.add(curModel,{merge:true, parse: true});
+      }
+    });
+
+    return curModel;
   },
 
 });

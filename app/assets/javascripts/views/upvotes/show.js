@@ -3,32 +3,33 @@ Quora.Views.UpvoteShow = Backbone.View.extend({
 
   initialize: function (options) {
     this.object = options.object
-    this.listenTo(this.object, "sync change", this.render)
-    this.listenTo(Quora.upvotes, "add", this.render)
+    this.listenTo(this.object, "sync change objUpvoted", this.getUpvoters)
+    // this.listenTo(Quora.upvotes, "add", this.getUpvoters)
+    this.getUpvoters()
   },
 
   events: {
     "submit form#upvote" : "upvoteObject"
   },
 
+  getUpvoters: function(){
+    this.objVoting = Quora.upvotes.doesUpvoteExist(Quora.currentUser.id, this.object.id, this.findObjClass())
+    this.UpvotesObject = Quora.upvotes.findAllVotes(this.object.id, this.findObjClass())
+    this.FriendUpvotesObj = this.UpvotesObject.findFriendVotes();
+    this.numNonFriendUpvoters = this.UpvotesObject.length - this.FriendUpvotesObj.length;
+    this.render()
+  },
+
   upvoteObject: function(event){
-    console.log("IN METHOD")
     event.preventDefault()
-    var objectClass;
 
-    if (this.object instanceof Quora.Models.Question){
-      objectClass = "Question";
-    } else if (this.object instanceof Quora.Models.QuestionAnswer){
-      objectClass = "Answer";
-    }
-
-    upvoteObj = new Quora.Models.Upvote({upvoteable_id: this.object.id , upvoteable_type: objectClass})
+    upvoteObj = new Quora.Models.Upvote({upvoteable_id: this.object.id , upvoteable_type: this.findObjClass()})
     var view = this
-    debugger
+
     upvoteObj.save({},{
       success: function(resp){
         Quora.upvotes.add(upvoteObj)
-        view.render()
+        view.object.trigger("objUpvoted")
       },
       error: function(resp){
         console.log("errorred")
@@ -38,32 +39,15 @@ Quora.Views.UpvoteShow = Backbone.View.extend({
 
   render: function () {
     var view = this;
-
-    var objectClass;
-
-    if (this.object instanceof Quora.Models.Question){
-      objectClass = "Question";
-    } else if (this.object instanceof Quora.Models.QuestionAnswer){
-      objectClass = "Answer";
-    }
-
-    var objVoting = Quora.upvotes.filter(function (upvote) {return (upvote.get("upvoteable_id") === view.object.id &&
-     Quora.currentUser.id === upvote.get("user_id") && upvote.get("upvoteable_type") === objectClass )})[0]
-
-    var UpvotesObject = Quora.upvotes.findAllVotes(this.object.id, objectClass)
-
-    var FriendUpvotesObj = UpvotesObject.findFriendVotes();
-
-    var numNonFriendUpvoters = UpvotesObject.length - FriendUpvotesObj.length;
-
     var renderedContent = this.template({
-      hasVoted : objVoting,
-      numExVoters: numNonFriendUpvoters,
-      friendUpvoters : FriendUpvotesObj
+      hasVoted : this.objVoting,
+      numExVoters: this.numNonFriendUpvoters,
+      friendUpvoters : this.FriendUpvotesObj
     });
     this.$el.html(renderedContent);
-    //this.attachSubviews();
 
     return this;
   }
 });
+
+_.extend(Quora.Views.UpvoteShow.prototype, Quora.ViewMixIn);

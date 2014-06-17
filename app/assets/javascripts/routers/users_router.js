@@ -2,6 +2,16 @@ Quora.Routers.Users = Backbone.Router.extend({
   initialize: function(options) {
     this.$rootEl = options.$rootEl
     this.$navbar = options.$navbar
+    // this.bind("route:before", this.before)
+  },
+
+  before: function(toRoute){
+    $("#js-alerts").html("")
+    if (!Quora.currentUser && (toRoute !== "users/new" && toRoute !== "")){
+      $("#js-alerts").html("<div class='alert alert-dismissable alert-danger'> Please log in to view this page. </div>")
+      Backbone.history.navigate("#", { trigger: true })
+      return false
+    }
   },
 
   routes: {
@@ -88,8 +98,8 @@ Quora.Routers.Users = Backbone.Router.extend({
     if (Quora.currentUser){
       Quora.currentRouter.navigate("#users/"+ Quora.currentUser.id +"/feed", { trigger: true });
     } else {
-    var newSessionView = new Quora.Views.SessionNew();
-    this._swapView(newSessionView);
+      var newSessionView = new Quora.Views.SessionNew();
+      this._swapView(newSessionView);
     }
   },
 
@@ -103,12 +113,12 @@ Quora.Routers.Users = Backbone.Router.extend({
   UserProfile: function (id) {
     $(window).unbind("scroll")
     var that = this;
-    var user = new Quora.Models.User({id: id});
-
-    user.fetch({data: {
-             last_obj_time: 0,
-             data_to_fetch: "profile_results"
-    }})
+    var user = Quora.allUsers.getOrFetchUser(id);
+    console.log("COMES IN")
+    // user.fetch({data: {
+    //          last_obj_time: 0,
+    //          data_to_fetch: "profile_results"
+    // }})
 
     userProfileView = new Quora.Views.UserShow({
           model: user
@@ -118,25 +128,25 @@ Quora.Routers.Users = Backbone.Router.extend({
   },
 
   UserAddInfo: function (id) {
-    $(window).unbind("scroll")
+    // $(window).unbind("scroll")
 
-    var user = new Quora.Models.User({id: id});
-    user.fetch()
+    // var user = Quora.allUsers.getOrFetch(id);
+    // // user.fetch()
 
-    var newUserView = new Quora.Views.UserAddInfo({
-      model: Quora.currentUser
-    });
-    this._swapView(newUserView);
+    // var newUserView = new Quora.Views.UserAddInfo({
+    //   model:user
+    // });
+    // this._swapView(newUserView);
   },
   TopicsIndex: function(){
     $(window).unbind("scroll")
 
-    var alltopics = new Quora.Collections.Topics();
+    // var alltopics = new Quora.Collections.Topics();
 
-    alltopics.fetch()
+    Quora.topics.fetch()
 
     var topicsView = new Quora.Views.TopicsIndex({
-      collection: alltopics
+      collection: Quora.topics
     });
 
     this._swapView(topicsView)
@@ -155,12 +165,10 @@ Quora.Routers.Users = Backbone.Router.extend({
   TopicShow: function(id) {
     $(window).unbind("scroll")
 
-    var TopicModel = new Quora.Models.Topic({id: id});
-    TopicModel.fetch()
-    // debugger
-    console.log(TopicModel.questions)
+    var topicModel = Quora.topics.getOrFetch(id);
     var TopicShowView = new Quora.Views.TopicShow({
-      model: TopicModel
+      model: topicModel,
+      addQuestions: true
     });
 
     this._swapView(TopicShowView);
@@ -179,11 +187,10 @@ Quora.Routers.Users = Backbone.Router.extend({
   QuestionShow: function(id) {
     $(window).unbind("scroll")
 
-    var questionModel = new Quora.Models.Question({id: id});
-    questionModel.fetch()
-
+    var questionModel = Quora.questions.getOrFetch(id);
     var QuesShowView = new Quora.Views.QuestionShow({
-      model: questionModel
+      model: questionModel,
+      includeAnswers: true
     });
 
     this._swapView(QuesShowView);

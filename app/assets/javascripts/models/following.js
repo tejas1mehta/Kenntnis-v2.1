@@ -6,25 +6,12 @@ Quora.Models.Following = Backbone.Model.extend({
       switch (response.followable_type){
         case("Topic"):
           var newTopic = new Quora.Models.Topic(response.followable)
-
           break;
         case("Question"):
-          var newQuestion = new Quora.Models.Question(response.followable)
-
-          var questionExists = Quora.questions.filter(function(model) {return model.id === newQuestion.id});
-          if (questionExists.length === 0){
-            Quora.questions.add(newQuestion)
-          }
+          Quora.questions.add(response.followable,{merge:true})
           break;
         case("User"):
-          var newUser = new Quora.Models.User(response.followable)
-
-          if (response.f_id == Quora.currentUser.id){
-            var userExists = Quora.userFollowers.filter(function(model) {return model.id === newUser.id});
-            if (userExists.length === 0){
-              Quora.userFollowers.add(newUser)
-            }
-          }
+          Quora.allUsers.add(response.followable, {merge:true})
           break;
       }
     }

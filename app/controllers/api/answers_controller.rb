@@ -1,6 +1,8 @@
 module Api
   class AnswersController < ApplicationController
-
+    before_action :require_login
+    before_action :author_confirm, only: [:destroy, :update]
+    
     def create
       @answer = Answer.new(answer_params)
 
@@ -36,6 +38,10 @@ module Api
     private
     def answer_params
       params.require(:answer).permit(:main_answer, :question_id).merge({author_id: current_user.id})
+    end
+
+    def author_confirm
+      render json: "Only author can perform this action" unless Answer.find(params[:id]).author_id == current_user.id
     end
 
   end

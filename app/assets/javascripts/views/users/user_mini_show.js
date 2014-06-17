@@ -1,25 +1,24 @@
 Quora.Views.UserMiniShow = Backbone.CompositeView.extend({
   template: JST["users/minishow"],
-  templateJustName: JST["users/userName"],
   initialize: function(options){
-    if (options.justName){
-     this.justName = true 
-    } else{
+    if (!(this.justName = options.justName)){
       var followingView = new Quora.Views.FollowingShow({object: this.model})
       this.addSubview(".following-btn", followingView)
-    }
+      this.$el.addClass("qns-des")
+    } 
     this.listenTo(this.model, "sync change", this.render);
   },
 
   render: function () {
     var view = this;
-    if (this.justName){ this.template = this.templateJustName}
 
     var renderedContent = this.template({
-      user : this.model
+      user : this.model,
+      onlyName: this.justName
     });
+
     this.$el.html(renderedContent);
-    // this.attachSubviews()
+    this.attachSubviews()
     return this;
   },
 

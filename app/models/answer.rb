@@ -2,6 +2,11 @@ class Answer < ActiveRecord::Base
   validates :main_answer, :question, :author, presence: true
   attr_accessor :weightage
 
+  # searchable do
+  #   text :main_answer, boost: 2.0
+  #   text :author
+  # end
+
   has_many :comments, as: :commentable
 
   belongs_to :question
@@ -20,4 +25,57 @@ class Answer < ActiveRecord::Base
     self.upvotes += 1
     self.save!
   end
+
+  def self.get_feed_ans(followed_user_ids, last_an_time)
+    Answer.find_by_sql ["SELECT an_list.id AS id,
+                MAX(an_list.main_answer) AS main_answer,
+                MAX(an_list.question_id) AS question_id,
+                MAX(an_list.author_id) AS author_id,
+                MAX(an_list.upvotes) AS upvotes,
+                MAX(an_list.created_at) AS created_at,
+                MAX(sort_time_c) AS sort_time
+                FROM (
+                SELECT answers.*, upvotes.created_at AS sort_time_c
+                FROM answers
+                INNER JOIN upvotes
+                ON (upvotes.upvoteable_id = answers.id AND upvotes.upvoteable_type = 'Answer')
+                WHERE (upvotes.user_id IN (:followed_ids)) 
+                UNION
+                SELECT answers.*, answers.created_at AS sort_time_c
+                        FROM answers 
+                        WHERE (answers.author_id IN (:followed_ids)))  AS an_list
+                GROUP BY an_list.id
+                HAVING max(sort_time_c) < :last_feed_an_time
+                ORDER BY max(sort_time_c) DESC
+                LIMIT 10",  {followed_ids: followed_user_ids, last_feed_an_time: last_an_time} ]
+    
+  end
+
+  def self.get_ans(followed_user_ids, last_an_time)
+    Answer.find_by_sql ["SELECT an_list.id AS id,
+                MAX(an_list.main_answer) AS main_answer,
+                MAX(an_list.question_id) AS question_id,
+                MAX(an_list.author_id) AS author_id,
+                MAX(an_list.upvotes) AS upvotes,
+                MAX(an_list.created_at) AS created_at,
+                MAX(sort_time_c) AS sort_time
+                FROM (
+                SELECT answers.*, upvotes.created_at AS sort_time_c
+                FROM answers
+                INNER JOIN upvotes
+                ON (upvotes.upvoteable_id = answers.id AND upvotes.upvoteable_type = 'Answer')
+                WHERE (upvotes.user_id IN (:followed_ids)) 
+                UNION
+                SELECT answers.*, answers.created_at AS sort_time_c
+                        FROM answers 
+                        WHERE (answers.author_id IN (:followed_ids)))  AS an_list
+                GROUP BY an_list.id
+                HAVING max(sort_time_c) < :last_feed_an_time
+                ORDER BY max(sort_time_c) DESC
+                ",  {followed_ids: followed_user_ids, last_feed_an_time: last_an_time} ]
+    
+  end
+
+
 end
+
