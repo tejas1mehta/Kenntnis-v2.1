@@ -317,7 +317,7 @@ class User < ActiveRecord::Base
       user_objs = cached_objs.limit(10)
     else
       last_obj_index = cached_objs.find_index{|obj| obj.sorted_time_str == last_obj_created_at}
-      user_objs = cached_objs.limit(10).offset(last_obj_index)
+      user_objs = cached_objs.limit(10).offset(last_obj_index + 1)
     end
     return user_objs
   end
@@ -341,7 +341,6 @@ class User < ActiveRecord::Base
       answers_created = self.answers_created.select("answers.*, answers.created_at AS sort_time").
       order("created_at DESC")   
     end   
-    puts "before"
     user_ans = return_objects(last_an_created_at, cached_answers)
     ActiveRecord::Associations::Preloader.new(user_ans, [:author, :upvotes_join,
      :question => [:author, :upvotes_join, :followers_join]]).run
