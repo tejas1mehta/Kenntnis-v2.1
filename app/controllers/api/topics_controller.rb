@@ -35,7 +35,7 @@ module Api
     def update
       @topic = Topic.find(params[:id])
 
-      if @topic.update_attributes(topic_params)
+      if @topic.update_attributes(update_topic_params)
         render :show
       end
     end
@@ -43,6 +43,10 @@ module Api
     private
     def topic_params
       params.require(:topic).permit(:title, :description).merge({author_id: current_user.id})
+    end
+    
+    def update_topic_params
+      params.require(:topic).permit(:title, :description)
     end
 
   end

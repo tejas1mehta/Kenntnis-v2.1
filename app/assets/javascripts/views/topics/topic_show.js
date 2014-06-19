@@ -9,9 +9,7 @@ Quora.Views.TopicShow = Backbone.CompositeView.extend({
       this.filCols.topicsJoinsCollection = Quora.topicQuestionJoins.getQnJoins(this.model.id);
       this.filCols.topicsJoinsCollection.each(this.addQn.bind(this))
       this.listenTo(this.filCols.topicsJoinsCollection,"add", this.addQn)
-    } else{ 
-      this.$el.addClass("posts-des")
-    }
+    } 
     this.model.attributes.author_id ? this.addAuthor() : this.listenToOnce(this.model, "sync", this.addAuthor)
     var followingView = new Quora.Views.FollowingShow({object: this.model})
     this.addSubview(".topic-following-btn", followingView)

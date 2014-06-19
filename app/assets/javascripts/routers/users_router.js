@@ -6,6 +6,7 @@ Quora.Routers.Users = Backbone.Router.extend({
   },
 
   before: function(toRoute){
+    $(window).unbind("scroll")
     $("#js-alerts").html("")
     if (!Quora.currentUser && (toRoute !== "users/new" && toRoute !== "")){
       $("#js-alerts").html("<div class='alert alert-dismissable alert-danger'> Please log in to view this page. </div>")
@@ -48,7 +49,6 @@ Quora.Routers.Users = Backbone.Router.extend({
   },
 
   Settings: function(){
-    $(window).unbind("scroll")
 
     var newSettingsView = new Quora.Views.UserSettings({
       model: Quora.currentUser
@@ -59,7 +59,6 @@ Quora.Routers.Users = Backbone.Router.extend({
   Logout: function(id){
     // console.log(Quora.userSession.url)
     // Quora.userSession.destroy()
-    $(window).unbind("scroll")
 
     this.$navbar.empty()
     $.ajax({
@@ -74,8 +73,7 @@ Quora.Routers.Users = Backbone.Router.extend({
   },
 
   UserFeed: function(id){
-    $(window).unbind("scroll")
-
+    var that = this
     console.log("IN FEED")
     // Quora.numVisitsPages.feed = 1
     Quora.currentUser.fetch({data: {
@@ -83,18 +81,20 @@ Quora.Routers.Users = Backbone.Router.extend({
          last_qn_time: 0,
          num_scrolls: 0,
          data_to_fetch: "feed_results"
-    }})
+      },
+      success: function(){
+        var userFeedView = new Quora.Views.UserFeed({
+          model: Quora.currentUser
+        });
 
-    var userFeedView = new Quora.Views.UserFeed({
-      model: Quora.currentUser
-    });
+        that._swapView(userFeedView)
+      }   
+    })
 
-    this._swapView(userFeedView)
+
   },
 
   NewSession: function () {
-    $(window).unbind("scroll")
-
     if (Quora.currentUser){
       Quora.currentRouter.navigate("#users/"+ Quora.currentUser.id +"/feed", { trigger: true });
     } else {
@@ -104,27 +104,24 @@ Quora.Routers.Users = Backbone.Router.extend({
   },
 
   UserNew: function () {
-    $(window).unbind("scroll")
-
     var newUserView = new Quora.Views.UserNew();
     this._swapView(newUserView);
   },
 
   UserProfile: function (id) {
-    $(window).unbind("scroll")
     var that = this;
-    var user = Quora.allUsers.getOrFetchUser(id);
-    console.log("COMES IN")
-    // user.fetch({data: {
-    //          last_obj_time: 0,
-    //          data_to_fetch: "profile_results"
-    // }})
-
-    userProfileView = new Quora.Views.UserShow({
-          model: user
-    });
-    userProfileView.lastDataFetched = "profile_results";
-    this._swapView(userProfileView);
+    var user = Quora.allUsers.getOrAdd(id);
+    user.fetch({data: {
+             last_obj_time: 0,
+             data_to_fetch: "profile_results"
+           },
+           success: function(){
+             userProfileView = new Quora.Views.UserShow({
+                   model: user
+             });
+             that._swapView(userProfileView);
+           }
+    })
   },
 
   UserAddInfo: function (id) {
@@ -139,9 +136,6 @@ Quora.Routers.Users = Backbone.Router.extend({
     // this._swapView(newUserView);
   },
   TopicsIndex: function(){
-    $(window).unbind("scroll")
-
-    // var alltopics = new Quora.Collections.Topics();
 
     Quora.topics.fetch()
 
@@ -153,8 +147,6 @@ Quora.Routers.Users = Backbone.Router.extend({
   },
 
   TopicNew: function(){
-    $(window).unbind("scroll")
-
     var newTopicModel = new Quora.Models.Topic();
     var newTopicView = new Quora.Views.TopicNew({
       model: newTopicModel
@@ -163,8 +155,6 @@ Quora.Routers.Users = Backbone.Router.extend({
   },
 
   TopicShow: function(id) {
-    $(window).unbind("scroll")
-
     var topicModel = Quora.topics.getOrFetch(id);
     var TopicShowView = new Quora.Views.TopicShow({
       model: topicModel,
@@ -175,8 +165,6 @@ Quora.Routers.Users = Backbone.Router.extend({
   },
 
   QuestionNew: function() {
-    $(window).unbind("scroll")
-
     var newQuestionModel = new Quora.Models.Question();
     var newQuestionView = new Quora.Views.QuestionNew({
       model: newQuestionModel
@@ -185,8 +173,6 @@ Quora.Routers.Users = Backbone.Router.extend({
   },
 
   QuestionShow: function(id) {
-    $(window).unbind("scroll")
-
     var questionModel = Quora.questions.getOrFetch(id);
     var QuesShowView = new Quora.Views.QuestionShow({
       model: questionModel,

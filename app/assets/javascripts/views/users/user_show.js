@@ -13,7 +13,8 @@ Quora.Views.UserShow = Backbone.CompositeView.extend({
     this.last_obj_time  = 0
     this.numScrolls = 0
     $(window).bind("scroll", this.$el, this.checkEndPage.bind(this))
-    this.listenToOnce(this.model,"objectsReceived", this.addObjects)
+    this.lastDataFetched = "profile_results";
+    this.addObjects()
   },
 
   addObjects: function(){
@@ -51,14 +52,16 @@ Quora.Views.UserShow = Backbone.CompositeView.extend({
 
   moreResults: function(){
     view = this
-    console.log("LastObjTime in UserShow moreResults View:" + view.last_obj_time)
     if (view.last_obj_time !== -1){
       view.$el.find("#loading_el").removeClass("inv_el")
       view.model.fetch({data: {
                last_obj_time: view.last_obj_time,
                data_to_fetch: view.lastDataFetched
-      }})
-      view.listenToOnce(view.model,"objectsReceived", view.addObjects)
+        },
+        success: function(){
+          view.addObjects()
+        }
+      })
     }
   },
 
