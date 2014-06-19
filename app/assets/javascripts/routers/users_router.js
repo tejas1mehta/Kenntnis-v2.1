@@ -189,7 +189,6 @@ Quora.Routers.Users = Backbone.Router.extend({
   _swapView: function (newView) {
     if (this.currentView) {
       this.currentView.remove();
-
     }
 
     this.$rootEl.html(newView.render().$el);
