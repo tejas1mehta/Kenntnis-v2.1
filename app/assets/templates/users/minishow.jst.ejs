@@ -1,7 +1,7 @@
 <% if (onlyName){ %>
 	<h5>Author: <a href=<%= "#users/" + user.id %> ><%= user.attributes.name %> </a> </h5>
 <% } else { %>
-	<ul style="padding-right:20px">
+	<ul style="padding-right:23px">
 	  <h4><a href=<%= "#users/" + user.id %> ><%= user.escape("name") %> </a> </h4>
 	  <div class="following-btn"></div>
 
