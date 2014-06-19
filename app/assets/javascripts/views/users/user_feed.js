@@ -8,7 +8,8 @@ Quora.Views.UserFeed = Backbone.CompositeView.extend({
     view.lastFeedQnTime = 0
     console.log(this.$el)
     $(window).bind("scroll", $("#user_feed"), this.checkEndPage.bind(this))
-    this.listenToOnce(this.model,"objectsReceived", this.addObjects)
+    // this.listenToOnce(this.model,"objectsReceived", this.addObjects)
+    this.addobjects()
     // this.$("#rec_users").on("submit", $("#follow"), this.followedUser.bind(this))
   },
 

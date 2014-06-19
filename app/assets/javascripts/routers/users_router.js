@@ -74,7 +74,7 @@ Quora.Routers.Users = Backbone.Router.extend({
 
   UserFeed: function(id){
     var that = this
-    console.log("IN FEED")
+    this.currentView.remove()
     // Quora.numVisitsPages.feed = 1
     Quora.currentUser.fetch({data: {
          last_an_time: 0,
@@ -109,6 +109,7 @@ Quora.Routers.Users = Backbone.Router.extend({
   },
 
   UserProfile: function (id) {
+    this.currentView.remove()
     var that = this;
     var user = Quora.allUsers.getOrAdd(id);
     user.fetch({data: {
