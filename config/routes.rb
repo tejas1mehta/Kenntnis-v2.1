@@ -17,7 +17,9 @@ Quora::Application.routes.draw do
 
     resources :messages, only: [:create, :index,:show]
 
-    resources :notifications, only: [:create, :index]
+    resources :notifications, only: [:create, :index] do
+      get :clear, on: :collection
+    end
 
     resources :questions, except: [:index] do
       resources :answers, except: [:create, :destroy, :update]
