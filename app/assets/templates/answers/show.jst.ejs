@@ -7,11 +7,11 @@
   	<h6> <%= "Created at: " + new Date(answer.escape("created_at")).toLocaleString()  %> </h6>
   	<% if (isEditing){ %>
   		<form id="ans-update">
-			<p> <input type="text" class="form-control" name="answer[main_answer]" value="<%= answer.escape("main_answer") %>"> </p>
+			<p> <input type="text" class="form-control" name="answer[main_answer]" value="<%= answer.get("main_answer") %>"> </p>
 			<button type="submit" class="btn btn-info btn-xs" > Update </button>
   		</form>
   	<% }else{ %>
-		<p> <%= answer.escape("main_answer") %></p>
+		<p> <%= answer.get("main_answer") %></p>
 		<% if (Quora.currentUser.id == answer._author.id){ %>
 			<button class="btn btn-info btn-xs" id="ans-edit"> Edit </button>
 			<button class="btn btn-danger btn-xs" id="ans-delete"> Delete </button>

@@ -1,14 +1,14 @@
 Quora.ViewMixIn = {
-  findObjClass: function(){
+  findObjClass: function(checkObj){
     var objectClass;
-
-    if (this.object instanceof Quora.Models.Question){
+    if (!checkObj){ checkObj = this.object }
+    if (checkObj instanceof Quora.Models.Question){
       objectClass = "Question";
-    } else if (this.object instanceof Quora.Models.Topic){
+    } else if (checkObj instanceof Quora.Models.Topic){
       objectClass = "Topic";
-    } else if (this.object instanceof Quora.Models.User){
+    } else if (checkObj instanceof Quora.Models.User){
       objectClass = "User";
-    } else if (this.object instanceof Quora.Models.QuestionAnswer){
+    } else if (checkObj instanceof Quora.Models.QuestionAnswer){
       objectClass = "Answer";
     }
 

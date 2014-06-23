@@ -19,6 +19,7 @@ module Api
 
     def show
       @topic = Topic.find(params[:id])
+      # @send_question_joins = @topic.questions_join#.where("topic_question_joins.created_at < ?", last_obj_time).limit(10)
       if @topic
         render :show #json: @topic
       else
@@ -48,6 +49,5 @@ module Api
     def update_topic_params
       params.require(:topic).permit(:title, :description)
     end
-
   end
 end

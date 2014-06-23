@@ -2,46 +2,46 @@
   <fieldset>
     <legend>Edit Profile</legend>
     <div class="form-group">
-      <label for="inputEmail" class="col-lg-2 control-label">Email</label>
-      <div class="col-lg-10">
+      <label for="inputEmail" class="col-xs-2 control-label">Email</label>
+      <div class="col-xs-10">
         <input type="text" class="form-control" name="user[email]" id="inputEmail" value="<%= curUser.escape("email")%>">
       </div>
     </div>
     <div class="form-group">
-      <label for="inputPassword" class="col-lg-2 control-label">Password</label>
-      <div class="col-lg-10">
+      <label for="inputPassword" class="col-xs-2 control-label">Password</label>
+      <div class="col-xs-10">
         <a href="#users/changepassword" id="inputPassword"> Change Password </a>
       </div>
     </div>
     <div class="form-group">
-      <label for="textAreaAbout" class="col-lg-2 control-label"> About </label>
-      <div class="col-lg-10">
+      <label for="textAreaAbout" class="col-xs-2 control-label"> About </label>
+      <div class="col-xs-10">
         <textarea class="form-control" name="user[about]" rows="3" id="textAreaAbout"><%= curUser.attributes.about %></textarea>
       </div>
     </div>
     <div class="form-group">
-      <label for="textAreaEmployment" class="col-lg-2 control-label"> Employment </label>
-      <div class="col-lg-10">
+      <label for="textAreaEmployment" class="col-xs-2 control-label"> Employment </label>
+      <div class="col-xs-10">
         <textarea class="form-control" name="user[employment]" rows="2" id="textAreaEmployment"><%= curUser.attributes.employment %></textarea>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="inputLocation" class="col-lg-2 control-label">Location</label>
-      <div class="col-lg-10">
+      <label for="inputLocation" class="col-xs-2 control-label">Location</label>
+      <div class="col-xs-10">
         <input type="text" class="form-control" name="user[location]" id="inputLocation" value="<%= curUser.escape("location")%>">
       </div>
     </div>
 
     <div class="form-group">
-      <label for="textAreaEducation" class="col-lg-2 control-label"> Education </label>
-      <div class="col-lg-10">
+      <label for="textAreaEducation" class="col-xs-2 control-label"> Education </label>
+      <div class="col-xs-10">
         <textarea class="form-control" name="user[education]" rows="2" id="textAreaEducation"><%= curUser.attributes.education %></textarea>
       </div>
     </div>
 
     <div class="form-group">
-      <div class="col-lg-10 col-lg-offset-2">
+      <div class="col-xs-10 col-xs-offset-2">
         <button class="btn btn-default">Cancel</button>
         <button type="submit" class="btn btn-primary">Update Profile</button>
       </div>

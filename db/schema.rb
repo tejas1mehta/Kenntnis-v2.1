@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140530035919) do
+ActiveRecord::Schema.define(version: 20140621082639) do
 
   create_table "answers", force: true do |t|
     t.text     "main_answer",             null: false
@@ -74,6 +74,7 @@ ActiveRecord::Schema.define(version: 20140530035919) do
     t.boolean  "viewed",            default: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "notification_kind"
   end
 
   create_table "questions", force: true do |t|

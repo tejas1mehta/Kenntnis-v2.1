@@ -1,0 +1,5 @@
+<% notifications.forEach(function(notification){ %>
+	<div class='posts-des'>
+		<h4> <%= notification.show_name + " " + notification.n_kind + notification.object_ref + notification.body_text + "</a>" + " on " + notification.created_at %> </h4>
+	</div>
+<% }) %>

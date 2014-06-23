@@ -123,7 +123,7 @@ class User < ActiveRecord::Base
   # class_name: "Upvote",
   # foreign_key: :user_id
 
-  attr_accessor :time_for_feed, :time_for_profile, :time_for_weights, :cache_time_taken
+  attr_accessor :time_for_feed, :time_for_profile, :time_for_weights, :cache_time_taken, :user_notifications
 
   def feed_objects(last_an_time, last_qn_time)
     num_results = 15

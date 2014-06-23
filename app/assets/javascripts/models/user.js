@@ -1,6 +1,5 @@
 Quora.Models.User = Backbone.Model.extend({
 	urlRoot: "api/users",
-
   
   parse: function(response){
     var user = this;
@@ -13,6 +12,11 @@ Quora.Models.User = Backbone.Model.extend({
     if (response.upvoted_join){
       Quora.upvotes.add(response.upvoted_join,{merge:true, parse: true})
       delete response.upvoted_join
+    }
+
+    if (response.notifications){
+      Quora.notifications.add(response.notifications,{merge:true, parse: true})
+      delete response.notifications
     }
 
     if (response.user_followers_join){

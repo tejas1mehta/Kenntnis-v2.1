@@ -5,6 +5,5 @@ json.followings_join @user.followings_join.includes(:followable) do |following_j
   json.followable following_join.followable
 end
 
-json.upvoted_join @user.upvoted_join do |upvote_join|
-  json.partial! 'api/shared/extract_all', object: upvote_join
-end
+
+

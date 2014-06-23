@@ -1,5 +1,6 @@
 Quora.CollectionMixIn = {
 
+
   getOrAdd: function(id){
     var retModel = this.get(id);
     if (!retModel){
@@ -30,7 +31,7 @@ Quora.CollectionMixIn = {
 
     var addFilter = function(newObject){
       if (filteringCriteria.apply(newObject)){
-        filteredCollection.add(newObject)
+        filteredCollection.add(newObject,{merge: true})
       }
     };
 
@@ -43,13 +44,16 @@ Quora.CollectionMixIn = {
     var unBindCollection = function(){
       console.log("UNBOUND")
       sourceCollection.unbind("add", addFilter)
+      sourceCollection.unbind("change", addFilter)
       sourceCollection.unbind("remove", removeFilter)
       if (boundToModel){boundToModel.unbind("change", applyFilter)}
     }
 
     if (boundToModel){boundToModel.bind("change", applyFilter)}
     this.bind("add", addFilter);
+    this.bind("change", applyFilter);
     this.bind("remove", removeFilter);
+    this.bind("sync", applyFilter);
     filteredCollection.bind("unbind", unBindCollection);
 
     applyFilter();

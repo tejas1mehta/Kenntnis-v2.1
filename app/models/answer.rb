@@ -1,6 +1,7 @@
 class Answer < ActiveRecord::Base
   validates :main_answer, :question, :author, presence: true
   attr_accessor :weightage
+  after_create :notify 
 
   # searchable do
   #   text :main_answer, boost: 2.0
@@ -76,6 +77,16 @@ class Answer < ActiveRecord::Base
     
   end
 
-
+  private
+  def notify
+    if (self.question.author_id != self.author_id)
+    Notification.create({notification_kind: "added an answer to", sent_by_id: self.author_id,
+       sent_to_id: self.question.author_id, about_object: self.question})
+    end
+    # self.question.followers.each do |qn_follower|
+    #   Notification.create({notification_kind: "Created on question followed", sent_by_id: self.author_id,
+    #    sent_to_id: qn_follower.id, about_object: self})
+    # end
+  end
 end
 

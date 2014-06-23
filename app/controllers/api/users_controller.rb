@@ -20,7 +20,13 @@ module Api
 
     def userinfo
       @user = User.find(params[:id])
+      @user_notifications = Notification.new_notifications(params[:id])
+      @user.user_notifications = @user_notifications
+      # if data_to_fetch_param == "notifications"
+      #   render :notifications
+      # else
       render :user_info
+      # end
     end
 
     def show #User profile

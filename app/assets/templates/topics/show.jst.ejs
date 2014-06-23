@@ -12,10 +12,10 @@
 
   <% if (addQns){ %>
   	<% if (isEditing){ %>
-        <textarea class="form-control" name="topic[description]" value="<%= topic.escape("description") %>"></textarea>
+        <textarea class="form-control" name="topic[description]" value="<%= topic.get("description") %>"></textarea>
         </form>
   	<% } else { %>
-  	  <h4> Description: <%= topic.escape("description") %></h4>
+  	  <h4> Description: <%= topic.get("description") %></h4>
       <% } %>
   <% } %>
   <div class="topic-following-btn"> </div>
@@ -23,3 +23,4 @@
 <% if (addQns){ %>
 	<div id="questions"> Questions: </div>
 <% } %>
+<h4 class="inv_el" id="loading_el" style="text-align:center"> Loading </h4>

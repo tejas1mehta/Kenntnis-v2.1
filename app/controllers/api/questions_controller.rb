@@ -5,7 +5,6 @@ module Api
     def create
       @question = Question.new(question_params)
       @question.relevant_user_ids = @question.create_relevant_users
-      debugger
       if @question.save
         render :show
       else

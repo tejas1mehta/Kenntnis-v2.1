@@ -6,15 +6,20 @@ window.Quora = {
   createSession: function(){
     Quora.currentUser.fetch({data: {
          data_to_fetch: "user_info"
-    }})
+        },
+        success: function(){
+          Quora.navbarView = new Quora.Views.NavBar({
+            model: Quora.currentUser
+          });
+          $("#navbar").html(Quora.navbarView.render().$el)
+          // $('#notif_btn').popover({trigger: "hover"})
+        }
+    })
 
     Quora.allUsers = Quora.allUsers || new Quora.Collections.Users();
     Quora.allUsers.add(Quora.currentUser)
+    Quora.users = Quora.allUsers
 
-    var navbarView = new Quora.Views.NavBar({
-      model: Quora.currentUser
-    });
-    $("#navbar").html(navbarView.render().$el)
 
     Quora.numVisitsPages = {};
   },
@@ -28,6 +33,8 @@ window.Quora = {
     Quora.upvotes = new Quora.Collections.Upvotes();
     Quora.topicQuestionJoins = new Quora.Collections.TopicQuestionJoins();
     Quora.relUserJoins = new Quora.Collections.QnRelevantUsers(); //Join table
+    Quora.notifications = new Quora.Collections.Notifications();
+
     Quora.currentRouter = new Quora.Routers.Users({
       $rootEl: $("div#content"),
       $navbar: $("div#navbar")
@@ -42,8 +49,6 @@ window.Quora = {
   }
 };
 
-
-
 Backbone.CompositeView = Backbone.View.extend({
   addSubview: function (selector, subview) {
     this.subviews(selector).push(subview);
@@ -51,8 +56,12 @@ Backbone.CompositeView = Backbone.View.extend({
     this.attachSubview(selector, subview.render());
   },
 
-  attachSubview: function (selector, subview) {
-    this.$(selector).append(subview.$el);
+  attachSubview: function (selector, subview, prepend) {
+    if (prepend){
+      this.$(selector).prepend(subview.$el);
+    } else {
+      this.$(selector).append(subview.$el);
+    }
     // Bind events in case `subview` has previously been removed from
     // DOM.
     subview.delegateEvents();

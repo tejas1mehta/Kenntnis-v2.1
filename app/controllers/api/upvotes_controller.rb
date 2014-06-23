@@ -3,6 +3,7 @@ module Api
 
     def create
       @upvote = Upvote.new(upvote_params)
+
       if @upvote.save
         render json: @upvote
       else
@@ -22,5 +23,5 @@ module Api
       params.require(:upvote).permit(:upvoteable_id, :upvoteable_type).merge({user_id: current_user.id})
     end
 
-  end
+   end
 end

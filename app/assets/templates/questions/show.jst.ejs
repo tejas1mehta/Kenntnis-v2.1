@@ -16,10 +16,10 @@
 
 	<% if (incAns){ %>
 		<% if (isEditing){ %>
-		    <h4> Description: <textarea class="form-control" id="qn_descr"  name="question[description]"> <%= question.escape("description") %></textarea> </h4>
+		    <h4> Description: <textarea class="form-control" id="qn_descr"  name="question[description]"> <%= question.get("description") %></textarea> </h4>
 		    </form>
 		<% } else { %> 
-			<h4> Description: <%= question.escape("description") %> </h4>
+			<h4> Description: <%= question.get("description") %> </h4>
 		<% } %>
 		<h4 class="add_same_line"> Topics: &nbsp </h4><div id="topics" class="add_same_line"> </div>
 

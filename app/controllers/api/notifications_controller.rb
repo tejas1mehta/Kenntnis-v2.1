@@ -18,8 +18,19 @@ module Api
     end
 
     def index
-      @notifications = current_user.notifications
-      render json: @notifications
+      status = (all_data == "AllNotifications") ? [true, false] : [false]
+      @notifications = Notification.get_notifications(current_user.id, status)
+      
+      render :index
+    end
+
+    def clear
+      notifications = Notification.where({sent_to_id: current_user.id, viewed: false})
+      notifications.each do |notfn|
+        notfn.viewed = true
+        notfn.save!
+      end
+      head :ok
     end
 
     private
@@ -28,5 +39,9 @@ module Api
       params.require(:notification).permit(:notification_body, :sent_by_id, :sent_to_id,
        :about_object_id, :about_object_type, :viewed) 
     end 
+
+    def all_data
+      params.permit(:data_to_fetch).values.first
+    end
   end
 end

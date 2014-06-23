@@ -30,6 +30,30 @@ Quora.Routers.Users = Backbone.Router.extend({
     "topics" : "TopicsIndex",
     "topics/new" : "TopicNew",
     "topics/:id" : "TopicShow",
+    "notifications" : "AllNotifications",
+    "notifications/clear": "ClearNotifications"
+  },
+  ClearNotifications: function(){
+    Quora.navbarView.notificationView.notifications.forEach(function(notfn){
+      notfn.set({"viewed": true})
+    })
+    $.ajax({
+      type: "GET",
+      url: "/api/notifications/clear"
+    })
+
+    Quora.navbarView.notificationView.notifications.trigger("clear")
+  },
+
+  AllNotifications: function(){
+    var that = this;
+    Quora.notifications.fetch({
+      data:{ data_to_fetch: "AllNotifications" },
+      success: function(){
+        var notfnsView = new Quora.Views.NotificationsIndex();
+        that._swapView(notfnsView);    
+      }
+    })
   },
 
   Search: function(){
@@ -67,6 +91,7 @@ Quora.Routers.Users = Backbone.Router.extend({
       success: function(response){
         console.log("logouted")
         Quora.currentUser = null
+        Quora.navbarView = null
         Backbone.history.navigate("", { trigger: true });
       }
     })
@@ -192,7 +217,10 @@ Quora.Routers.Users = Backbone.Router.extend({
     }
 
     this.$rootEl.html(newView.render().$el);
-
+    if (Quora.navbarView){
+      var add_title =  "<a href='#notifications'> All Notifications </a> &nbsp <a href='#notifications/clear'> Clear All Notifications </a>"
+      Quora.navbarView.notificationView.$el.popover({trigger: "click",html:true, title: add_title})
+    }
     this.currentView = newView;
   }
 
