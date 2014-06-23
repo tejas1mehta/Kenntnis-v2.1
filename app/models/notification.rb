@@ -20,12 +20,12 @@ class Notification < ActiveRecord::Base
         n.about_object_id AS about_object_id,
         n.about_object_type AS about_object_type,
         max(n.created_at) AS created_at,
-        MAX(n.viewed) AS viewed,
+        n.viewed AS viewed,
         COUNT(*) AS num_users,
         n.notification_kind AS notification_kind
         FROM notifications n
         WHERE (n.sent_to_id = :user_id AND n.viewed IN (:status))
-        GROUP BY n.notification_kind, n.about_object_id, n.about_object_type
+        GROUP BY n.notification_kind, n.about_object_id, n.about_object_type, n.viewed
         ORDER BY max(n.created_at) DESC",{user_id: user_id, status: status}]
     ActiveRecord::Associations::Preloader.new(new_notifications, [:sent_by, :about_object]).run
 
