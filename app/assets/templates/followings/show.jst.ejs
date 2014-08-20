@@ -1,6 +1,6 @@
 <h5 style="line-height:1.7"> Followers:
 <% friendFollowers.forEach(function(friendFollower){ %>
-  <a href=<%= "#users/" + friendFollower.id%> > <%= friendFollower.get("name")%></a>,
+  <a href=<%= "#users/" + friendFollower.id%> > <%= friendFollower.escape("name")%></a>,
 <% }) %>
 
 <% if (numExFollowers > 0 ){ %>
