@@ -1,6 +1,6 @@
 <h5> Upvotes by:
 <% friendUpvoters.forEach(function(friendUpvoter){ %>
-  <a href=<%= "#users/" + friendUpvoter.id%> >  <%= friendUpvoter.get("name")%> </a>, 
+  <a href=<%= "#users/" + friendUpvoter.id%> >  <%= friendUpvoter.escape("name")%> </a>, 
 <% }) %>
 <% if (numExVoters > 0 ){ %>
 	<% if (friendUpvoters.length > 0){ %>
